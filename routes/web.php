@@ -14,5 +14,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    // return view('otpMail',["userName"=> "amer",'userEmail'=> "amer@test.com","userPassword"=>"33333","userRole"=>"2"]);
+    return view("otpMail",['otp'=>"1234567"]);
 });

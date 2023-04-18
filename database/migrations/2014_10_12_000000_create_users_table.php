@@ -17,6 +17,10 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string("phoneNumber");
+            $table->string("type");
+            $table->string("department_id");
+            $table->boolean("is_validate");
+            $table->boolean("approved");
             $table->timestamps();
         });
     }
