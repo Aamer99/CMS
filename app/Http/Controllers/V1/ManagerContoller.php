@@ -33,6 +33,7 @@ class ManagerContoller extends Controller
         $newEmployee-> save();  
 
         return response()->json(['message'=> "the request send to admin successfully"],200);
+        
        } catch(Error $err){
         return response()->json(["message"=>$err],400);
        }

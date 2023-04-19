@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUserRequest;
 use App\Mail\welcomeMail;
 use App\Models\User;
 use Error;
@@ -54,12 +55,36 @@ class AdminContoller extends Controller
             $employee-> password = Hash::make($employeePassword);
             $employee -> save();
                
-            Mail::to($employee-> email)->send(new welcomeMail($employee-> email,$employee-> name,$employeePassword,$employee-> type));
+             Mail::to($employee-> email)->send(new welcomeMail($employee-> email,$employee-> name,$employeePassword,$employee-> type));
 
             return response()-> json(['messsage'=> "the employee successfully approved "],200);
 
         }catch(Error $err){
             return response()-> json(['message'=> $err],400);
+        }
+    }
+
+    public function addNewManager(StoreUserRequest $request){
+        try{
+
+            $newManager = new User();
+            $newManager-> name = $request-> name; 
+            $newManager-> email = $request-> email;
+            $managerPassowrd = Str::random(10);
+            $newManager-> password = Hash::make($managerPassowrd);
+            $newManager-> type = 1;
+            $newManager-> phoneNumber = $request-> phoneNumber; 
+            $newManager-> department_id = $request-> department_id;
+            $newManager-> is_validate = false;
+            $newManager-> approved = true;
+            $newManager-> save();  
+
+            Mail::to($newManager-> email)->send(new welcomeMail($newManager-> email,$newManager-> name,$managerPassowrd,$newManager-> type));
+
+            return response()-> json(["message"=> "the manager created successfully"],200);
+
+        }catch(Error $err){
+            return response()->json(["message"=> $err],400);
         }
     }
 

@@ -21,4 +21,10 @@ class User extends Authenticatable
     function otp(){
         return $this->has(Otp::class,"user_id");
     }
+    public function sender(){
+        return $this->has(User::class,"sender_id");
+    }
+    public function received(){
+        return $this->has(User::class,"received_id");
+    }
 }

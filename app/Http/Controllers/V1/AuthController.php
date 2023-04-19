@@ -34,7 +34,7 @@ class AuthController extends Controller
             $otp = Otp::firstWhere('user_id',auth()->user()-> id); 
 
             $otpCode = sprintf("%06d", mt_rand(1, 999999)); 
-          
+            $otpExpiredDate = now()->addMinutes(5);
 
             if($otp == null){
               
@@ -42,7 +42,7 @@ class AuthController extends Controller
             $newOtp-> user_id= auth()->user()-> id; 
             $newOtp-> otp = $otpCode; 
             $newOtp-> token = $token;
-            $newOtp-> expired_at = now()->addMinutes(5);
+            $newOtp-> expired_at = $otpExpiredDate;
             $newOtp->save();
          
 
@@ -51,7 +51,7 @@ class AuthController extends Controller
                 $newOtp = $otp;
                 $newOtp-> token = $token;
                 $newOtp-> otp = $otpCode;
-                $newOtp-> expired_at = now()->addMinutes(5);
+                $newOtp-> expired_at = $otpExpiredDate;
                 $newOtp-> save();
               
             }
@@ -59,7 +59,7 @@ class AuthController extends Controller
              Mail::to(auth()->user()-> email)->send(new otpMail(auth()->user()-> email,$otpCode));
 
             return response()->json([
-                'expired_at'=> $otp-> expired_at,
+                'expired_at'=> $otpExpiredDate,
                 'token'=> $token,
             ],200);
 

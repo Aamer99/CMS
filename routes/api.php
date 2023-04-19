@@ -67,12 +67,15 @@ Route::group(['prefix'=>'v1','namespace'=> 'App\Http\Controllers\V1\AdminContoll
     Route::get("/admin/getAlladdEmployeeRequests",[AdminContoller::class,"getAddEmployeeRequests"]);
     Route::get("/admin/getAddEmployeeRequest/{user_id}",[AdminContoller::class,"getAddEmployeeRequest"]);
     Route::post("/admin/approvedAddEmployeeRequest/{user_id}",[AdminContoller::class,"approvedAddEmployeeRequest"]);
+    Route::post("/admin/addNewManager",[AdminContoller::class,"addNewManager"]);
    
 });
 
-Route::prefix("/users/v1")->group(function(){
+Route::group(['prefix'=>'v1','namespace'=> 'App\Http\Controllers\V1\UserController'],function(){
 
-    Route::get("/",[UserController::class,'index']);
+    Route::post("/users/editProfile/{user_id}",[UserController::class,'editProfile']);
+    Route::post("/users/setPassword/{user_id}",[UserController::class,'setPassword']);
+    Route::post("/users/notifyUser/{sender_id}",[UserController::class,"notifyUser"]);
 });
 
 
