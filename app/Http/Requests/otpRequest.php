@@ -22,16 +22,16 @@ class otpRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'otp'=> ["required",'max:999999','min:111111','integer']
+            'otp'=> ["required",'digits:6']
         ];
     }
 
     public function messages(){
         return [
             'otp.required' => "the OTP is required",
-            'otp.max'=> "the OTP code is should be 6 numbers",
-            'otp.min'=> "the OTP code is should be 6 numbers",
-            'otp.integer'=> "the OTP should be numbers"
+            'otp.digits'=> "the OTP code is should be 6 numbers",
+            // 'otp.min'=> "the OTP code is should be 6 numbers",
+            // 'otp.integer'=> "the OTP should be numbers"
         ];
     }
 }

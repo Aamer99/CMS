@@ -13,22 +13,24 @@ class notifyMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    protected $message;
-    protected $senderName;
     protected $senderEmail;
+    protected $senderName;
+    protected $message;
 
-    public function __construct($senderEmail,$senderName,$message)
+    public function __construct($senderName,$senderEmail,$message)
     {
         $this->senderEmail = $senderEmail;
         $this->senderName = $senderName;
         $this->message = $message;
     }
 
-    
+    /**
+     * Get the message envelope.
+     */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Notify Mail',
+            subject: 'Message from '. $this->senderName,
         );
     }
 
@@ -38,7 +40,8 @@ class notifyMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'NotifyMail',with:["message"=> $this->message,"senderEmail"=> $this->senderEmail,"senderName"=>$this->senderName]
+           
+            view:'NotifyMail',with:["senderMessage"=>$this->message,"senderName"=> $this->senderName,"senderEmail"=> $this->senderEmail],
         );
     }
 

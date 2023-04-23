@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EditProfileRequest;
 use App\Mail\notifyMail;
+use App\Mail\welcomeMail;
 use App\Models\Notify;
 use Error;
 use Illuminate\Support\Facades\Hash;
@@ -68,18 +69,31 @@ class UserController extends Controller
             ]); 
 
             $sender = User::find($sender_id);
-             
+            $received = User::find($request-> received_id);
+
             if($sender-> type == 0 || $sender-> type == 1){
-                $newNotify = new Notify();
-                $newNotify-> sender_id = $sender_id;
-                $newNotify-> received_id = $request-> received_id; 
-                $newNotify-> message = $request-> message; 
-                $newNotify-> save() ;
+                if($received){
 
-                // Mail::to($newNotify-> received_id)->send(new notifyMail($sender-> email,$sender-> name,$newNotify-> message)); 
-                
-                return response()-> json(["message"=> "the message send successfully "],200);
+                    if($received-> id != $sender-> id){
+                        
+                       $newNotify = new Notify();
+                       $newNotify-> sender_id = $sender-> id;
+                       $newNotify-> received_id = $received-> id; 
+                       $newNotify-> message = $request-> message; 
+                       $newNotify-> save() ; 
 
+                       Mail::to($received-> email)->send(new notifyMail($sender-> name,$sender-> email,$request-> message));
+
+                       return response()-> json(["message"=> "the message send successfully "],200);
+
+                       
+                    } else{
+                        return response()-> json(["message"=> "you can't send message to your self"],400);
+                    }
+                } else{
+                    return response()->json(["message"=> "the user not exis!t"],404);
+                }
+              
             } else{
                 return response()->json(["message"=> "unauthorized"],401);
             }

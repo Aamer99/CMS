@@ -9,6 +9,8 @@ use App\Http\Controllers\V1\DepartmentContoller;
 use App\Http\Controllers\V1\EmployeeContoller;
 use App\Http\Controllers\V1\ManagerContoller;
 use App\Http\Controllers\V1\UserController;
+use App\Http\Controllers\V1\RequestController as V1RequestController;
+use App\Http\Controllers\V1\UserRequestsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -68,17 +70,24 @@ Route::group(['prefix'=>'v1','namespace'=> 'App\Http\Controllers\V1\AdminContoll
     Route::get("/admin/getAddEmployeeRequest/{user_id}",[AdminContoller::class,"getAddEmployeeRequest"]);
     Route::post("/admin/approvedAddEmployeeRequest/{user_id}",[AdminContoller::class,"approvedAddEmployeeRequest"]);
     Route::post("/admin/addNewManager",[AdminContoller::class,"addNewManager"]);
+    Route::get("/admin/request/{request_id}",[AdminContoller::class,"getOneRequest"]);
+    Route::get("/admin/request/all",[AdminContoller::class,"getAllRequests"]);
+    Route::post("/admin/request/{request_id}",[AdminContoller::class,"approvedRequest"]);
    
 });
 
-Route::group(['prefix'=>'v1','namespace'=> 'App\Http\Controllers\V1\UserController'],function(){
+Route::group(['prefix'=>'v1','namespace'=> 'App\Http\Controllers\V1'],function(){
 
     Route::post("/users/editProfile/{user_id}",[UserController::class,'editProfile']);
     Route::post("/users/setPassword/{user_id}",[UserController::class,'setPassword']);
     Route::post("/users/notifyUser/{sender_id}",[UserController::class,"notifyUser"]);
+    
+ 
 });
-
-
-
+ Route::group(['prefix'=>'v1','namespace'=> 'App\Http\Controllers\V1\UserRequestsController'],function(){
+    Route::post("/user/requests/create/{user_id}",[UserRequestsController::class,"createRequest"]);
+    Route::post("/user/requests/approved/{request_id}",[UserRequestsController::class,"approvedRequest"]);
+    Route::get("/user/requests/getOne/{request_id}",[UserRequestsController::class,"getOneRequest"]);
+ });
 
 

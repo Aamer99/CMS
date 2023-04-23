@@ -27,4 +27,7 @@ class User extends Authenticatable
     public function received(){
         return $this->has(User::class,"received_id");
     }
+     public function requests(){
+        return $this->hasMany(Request::class,"owner_id");
+    }
 }
