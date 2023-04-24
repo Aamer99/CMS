@@ -19,6 +19,8 @@ return new class extends Migration
             $table-> string("type");
             $table-> string("status");
             $table-> string("request_number");
+            $table-> longText("description");
+            $table->softDeletes();
             $table->timestamps();
         });
     }

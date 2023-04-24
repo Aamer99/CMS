@@ -504,10 +504,10 @@
 																			<table class="icons-inner" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block; margin-right: -4px; padding-left: 0px; padding-right: 0px;" cellpadding="0" cellspacing="0" role="presentation"><!--<![endif]-->
 																				<tr>
 																					<td style="font-family: Poppins, Arial, Helvetica, sans-serif; font-size: 15px; color: #9d9d9d; vertical-align: middle; letter-spacing: undefined; text-align: center;">
-                                            <div style="padding-top: 20px; color: rgb(153, 153, 153); text-align: center;">
-                                            <p style="padding-bottom: 16px">Made with ♥ in Riyadh</p>
-                                          </div>
-                                        </td>
+                                           												 <div style="padding-top: 20px; color: rgb(153, 153, 153); text-align: center;">
+                                          															  <p style="padding-bottom: 16px">Made with ♥ in Riyadh</p>
+                                          													</div>
+                                        											</td>
 																				</tr>
 																			</table>
 																		</td>

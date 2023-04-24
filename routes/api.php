@@ -88,6 +88,9 @@ Route::group(['prefix'=>'v1','namespace'=> 'App\Http\Controllers\V1'],function()
     Route::post("/user/requests/create/{user_id}",[UserRequestsController::class,"createRequest"]);
     Route::post("/user/requests/approved/{request_id}",[UserRequestsController::class,"approvedRequest"]);
     Route::get("/user/requests/getOne/{request_id}",[UserRequestsController::class,"getOneRequest"]);
+    Route::get("/user/requests/{user_id}",[UserRequestsController::class,"getUserRequests"]);
+    Route::get("/user/requests/all/{user_id}",[UserRequestsController::class,"getAllRequests"]);
+    Route::delete("/user/requests/deny/{request_id}",[UserRequestsController::class,"denyRequest"]);
  });
 
 
