@@ -4,8 +4,10 @@ namespace App\Http\Controllers\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\otpRequest;
 use App\Mail\otpMail;
+use App\Models\AccessToken;
 use App\Models\Otp;
 use App\Models\User;
+use Error;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -24,7 +26,7 @@ class AuthController extends Controller
         
             
             if(!auth()->user()-> is_validate){
-                 return response()->json(['message'=> "you need to reset your password"],403);
+                 return response()->json(['message'=> "you need to reset your password",],201);
             } else {
             // create token 
 
@@ -74,14 +76,14 @@ class AuthController extends Controller
     public function verifyOtp(otpRequest $request)
     {
         
-        // dd($userID);
+        
         $otp = Otp::where('token',$request-> token)->first(); 
           
         if(!$otp){
 
             return response()-> json(['message'=> "unauthorized"],401);
 
-        // } else if($otp-> token == $request-> token){
+    
 
         }else if($otp-> otp == $request-> otp){
                 
@@ -94,11 +96,27 @@ class AuthController extends Controller
                     $user = User::find($otp-> user_id);
 
                     //Generate access token 
+                    $accessToken = AccessToken::where("user_id",$user-> id)-> first();
+                    $token = Str::random(80); 
+                    if($accessToken){
 
-                    // 
+                        $accessToken-> token = $token;
+                        $accessToken-> expired_at = now()->addDay(1);
+                        $accessToken-> save();
+
+                    } else{
+
+                        $newAccessToken = new AccessToken();
+                        $newAccessToken-> token = $token;
+                        $newAccessToken-> user_id = $user-> id;
+                        $newAccessToken-> expired_at = now()->addDay(1);
+                        $newAccessToken-> save(); 
+
+                    }
+                   
                     return response()-> json([
                         'message'=> 'successfull login',
-                        'token'=> $otp-> token,
+                        'token'=> $token,
                         'user'=> $user
                     ],200);
                 } else {
@@ -109,6 +127,24 @@ class AuthController extends Controller
                 return response()-> json(['message'=> 'invalid code'],400);
             }
 
+    } 
+
+    public function logout()
+    {
+        try{
+
+            $user = auth()->user();
+            //  Auth::logout();
+            $accessToken = AccessToken::where("user_id",$user-> id)-> first();
+            $accessToken-> delete(); 
+            return response()-> json(["message"=>"logged out successfully"],200);
+
+        }catch(Error $err){
+            return response()->json(["message"=> $err],400);
+        }
+
     }
+
+    
  
 }

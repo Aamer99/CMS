@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Mail\requestNotifyMail;
 use App\Mail\sendedRequestMail;
 use App\Models\Request as UserRequest;
 use App\Models\User;
@@ -38,13 +39,21 @@ class UserRequestsController extends Controller
         try{
 
             $request = UserRequest::find($request_id); 
+            
 
             if($request){
-
+                if($request-> status == 0){
+              $user = User::find($request-> owner_id);
               $request-> status = 1; 
-              $request-> save();
+              $request-> save(); 
+
+              Mail::to($user-> email)->send(new requestNotifyMail($request-> request_number,$user-> name));
 
               return response()-> json(["message"=> "the requests approved successfully "],200);
+                }else{
+
+                    return response()-> json(["message"=> "the request not found"],404);
+                }
 
             } else{
 
@@ -61,9 +70,11 @@ class UserRequestsController extends Controller
         try{
 
             $request = UserRequest::find($request_id);
+            $user = User::find($request-> owner_id);
             if($request){ 
             $request-> delete();
             
+            Mail::to($user-> email)->send(new requestNotifyMail($request-> request_number,$user-> name));
 
             return response()->json(["message"=>" the request denied successfully "],200);
             } else{

@@ -22,10 +22,10 @@ class EditProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'=> ["required",'min:3'],
-            'email'=> ['required','email','lowercase','unique:users'],
-            'password' => ['required','min:6'],
-            'phoneNumber' => ['required'],
+            'name'=> ["required_if:name,==,null",'min:3'],
+            'email'=> ['required_if:email,==,null','email','lowercase','unique:users'],
+            'password' => ['required_if:password,==,null','min:6'],
+            'phoneNumber' => ['required_if:phoneNumber,==,null'],
         ];
     }
 

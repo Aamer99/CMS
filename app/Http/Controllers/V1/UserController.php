@@ -22,14 +22,17 @@ class UserController extends Controller
         try{
         $user = User::find($user_id);
          
-        $user-> name = $request-> name ;
-        $user-> email = $request-> email; 
-        $user-> password = $request-> password;
-        $user-> phoneNumber = $request-> phoneNumber; 
+        if($user){
+        $user-> name = $request-> name == null ? $user-> name : $request-> name;
+        $user-> email =  $request-> email == null ? $user-> email: $request-> email; 
+        $user-> password = $request-> password == null ? $user-> password : Hash::make($request-> password);
+        $user-> phoneNumber = $request-> phoneNumber == null ? $user-> phoneNumber : $request-> phoneNumber; 
         $user-> save(); 
 
          return response()->json(["message"=> "successful"],200);
-
+        } else{
+            return response()-> json(["message"=> "the user not exist"],400);
+        }
      } catch(Error $err){
 
         return response()->json(["message"=> $err],400);
