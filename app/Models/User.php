@@ -15,14 +15,17 @@ class User extends Authenticatable
 
 
    
-    function department(){
+   public function department(){
         return $this->belongsTo(Department::class,"department_id");
     }
-    function otp(){
+    public function otp(){
         return $this->has(Otp::class,"user_id");
     }
-    function token(){
+    public function token(){
         return $this->has(AccessToken::class,"user_id");
+    }
+    public function file(){
+        return $this->has(File::class,"request_id");
     }
     public function sender(){
         return $this->has(User::class,"sender_id");

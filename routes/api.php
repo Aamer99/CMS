@@ -69,8 +69,11 @@ Route::group(['prefix'=>'v1','namespace'=> 'App\Http\Controllers\V1\AuthControll
     Route::post("/auth/login",[AuthController::class,"login"]);
     Route::post("/auth/verifyOtp",[AuthController::class,"verifyOtp"]);
     Route::post("/auth/logout",[AuthController::class,"logout"]);
+
+    Route::post("/auth/requestFile",[UserRequestsController::class,"uploadFile"]);
    
 });
+
 
 
 // Route::group(['prefix'=>'v1','namespace'=> 'App\Http\Controllers\V1\AdminContoller'],function(){

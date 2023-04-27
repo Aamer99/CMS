@@ -10,10 +10,11 @@ class Request extends Model
 {
     use HasFactory;
     use SoftDeletes;
-    function owner(){
+   public function owner(){
         return $this->belongsTo(Otp::class,"owner_id");
     }
-    function department(){
+    public function department(){
         return $this->belongsTo(Department::class,"department_id");
     }
+
 }
