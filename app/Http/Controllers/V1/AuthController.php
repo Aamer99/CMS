@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\otpRequest;
+use App\Jobs\sendOtpMail;
 use App\Mail\otpMail;
 use App\Models\AccessToken;
 use App\Models\Otp;
@@ -58,7 +59,10 @@ class AuthController extends Controller
               
             }
 
-             Mail::to(auth()->user()-> email)->send(new otpMail(auth()->user()-> email,$otpCode));
+              Mail::to(auth()->user()-> email)-> queue(new otpMail($otpCode));
+
+            // $data = ["otp"=> $otpCode];
+            // sendOtpMail::dispatch($data);
 
             return response()->json([
                 'expired_at'=> $otpExpiredDate,
@@ -81,7 +85,7 @@ class AuthController extends Controller
           
         if(!$otp){
 
-            return response()-> json(['message'=> "unauthorized"],401);
+            return response()-> json(['message'=> "unauthorized!"],401);
 
     
 

@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\Route;
      Route::group(['prefix'=>'v1','middleware'=>'App\Http\Middleware\ManagerAuth'],function(){
    
         Route::post("/manager/requestAddEmployee/{department_id}",[ManagerContoller::class,"requestAddEmployee"]);
+        Route::get("/department/requests/{department_id}",[UserRequestsController::class,"getDepartmentRequests"]);
+        Route::post("/manager/employeeRequests/approved/{request_id}",[UserRequestsController::class,"approvedEmployeeRequest"]);
         
     });
 
@@ -31,13 +33,14 @@ use Illuminate\Support\Facades\Route;
 
     Route::group(['prefix'=>'v1','middleware'=>'App\Http\Middleware\AdminAuth'],function(){
    
-        Route::get("/admin/getAlladdEmployeeRequests",[AdminContoller::class,"getAddEmployeeRequests"]);
+        Route::get("/admin/getAlladdEmployeeRequests",[AdminContoller::class,"getAllAddEmployeeRequests"]);
         Route::get("/admin/getAddEmployeeRequest/{user_id}",[AdminContoller::class,"getAddEmployeeRequest"]);
         Route::post("/admin/approvedAddEmployeeRequest/{user_id}",[AdminContoller::class,"approvedAddEmployeeRequest"]);
         Route::post("/admin/addNewManager",[AdminContoller::class,"addNewManager"]);
-        Route::post("/user/requests/approved/{request_id}",[UserRequestsController::class,"approvedRequest"]);
+        Route::post("/admin/managerRequests/approved/{request_id}",[UserRequestsController::class,"approvedManagerRequest"]);
         Route::post("/department/createOne",[DepartmentContoller::class,"createNewDepartment"]);
         Route::delete("/user/requests/deny/{request_id}",[UserRequestsController::class,"denyRequest"]);
+        Route::get("/admin/managerRequests/{user_id}",[UserRequestsController::class,"getManagerRequests"]);
         
     });
 
@@ -55,11 +58,20 @@ Route::group(['prefix'=>'v1','middleware'=>'App\Http\Middleware\RoleAuth'],funct
     Route::post("/user/requests/create/{user_id}",[UserRequestsController::class,"createRequest"]);
     Route::get("/user/requests/getOne/{request_id}",[UserRequestsController::class,"getOneRequest"]);
     Route::get("/user/requests/{user_id}",[UserRequestsController::class,"getUserRequests"]);
-    Route::get("/user/requests/all/{user_id}",[UserRequestsController::class,"getAllRequests"]);
     Route::put("/user/editProfile/{user_id}",[UserController::class,'editProfile']);
-    Route::post("/user/setPassword/{user_id}",[UserController::class,'setPassword']);
+    
+    Route::post("/auth/logout",[AuthController::class,"logout"]);
     
  });
+
+
+
+ });
+
+ Route::group(['prefix'=>'v1','middleware'=>'App\Http\Middleware\authCheck'],function(){
+
+    Route::post("/auth/verifyOtp",[AuthController::class,"verifyOtp"]);
+    Route::post("/user/setPassword/{user_id}",[UserController::class,'setPassword']);
 
  });
 
@@ -67,10 +79,7 @@ Route::group(['prefix'=>'v1','middleware'=>'App\Http\Middleware\RoleAuth'],funct
 Route::group(['prefix'=>'v1','namespace'=> 'App\Http\Controllers\V1\AuthController'],function(){
    
     Route::post("/auth/login",[AuthController::class,"login"]);
-    Route::post("/auth/verifyOtp",[AuthController::class,"verifyOtp"]);
-    Route::post("/auth/logout",[AuthController::class,"logout"]);
-
-    Route::post("/auth/requestFile",[UserRequestsController::class,"uploadFile"]);
+  
    
 });
 

@@ -37,12 +37,8 @@ class VerifyToken
                 
                 return response()-> json(["you need to login again"],401);
               }
-          }else if(!auth()->user()-> is_validate){
-            
-            return $next($request);
           }
-          
-
+        
         return response()-> json(["message"=> "Unauthorized"],401);
         
         } else{

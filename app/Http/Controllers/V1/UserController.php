@@ -10,6 +10,7 @@ use App\Mail\notifyMail;
 use App\Mail\welcomeMail;
 use App\Models\Notify;
 use Error;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
@@ -49,19 +50,23 @@ class UserController extends Controller
             ]);
 
             $user = User::find($user_id);
-            $user-> password = Hash::make($request-> password); 
-            $user-> is_validate = true;
-            $user-> save();
-            return response()-> json(["message"=> 'set password successfully'],200);
+            if($user){
+
+                $user-> password = Hash::make($request-> password); 
+                $user-> is_validate = true;
+                $user-> save(); 
+                Auth::logout();
+                return response()-> json(["message"=> 'set password successfully'],200);
+            }
+
+            return response()->json(["message"=>"user not found!!"],400);
+
 
         }catch(Error $err){
             return response()-> json(["message"=> $err],400);
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function notifyUser(string $sender_id,Request $request)
     {
         try{
@@ -74,6 +79,8 @@ class UserController extends Controller
             $sender = User::find($sender_id);
             $received = User::find($request-> received_id);
 
+          if($sender){
+            
             if($sender-> type == 0 || $sender-> type == 1){
                 if($received){
 
@@ -85,7 +92,7 @@ class UserController extends Controller
                        $newNotify-> message = $request-> message; 
                        $newNotify-> save() ; 
 
-                       Mail::to($received-> email)->send(new notifyMail($sender-> name,$sender-> email,$request-> message));
+                       Mail::to($received-> email)->queue(new notifyMail($sender-> name,$sender-> email,$request-> message));
 
                        return response()-> json(["message"=> "the message send successfully "],200);
 
@@ -100,24 +107,12 @@ class UserController extends Controller
             } else{
                 return response()->json(["message"=> "unauthorized"],401);
             }
+        }
+        return response()->json(["message"=> "the user not exist!"],400);
         }catch(Error $err){
             return response()-> json(["message"=> $err],400);
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+    
 }
