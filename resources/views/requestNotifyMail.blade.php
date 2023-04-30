@@ -102,7 +102,7 @@
 													<table class="image_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
 														<tr>
 															<td class="pad" style="width:100%;padding-right:0px;padding-left:0px;">
-																<div class="alignment" align="center" style="line-height:10px"><img src="https://app-rsrc.getbee.io/public/resources/defaultrows/1.png" style="display: block; height: auto; border: 0; width: 125px; max-width: 100%;" width="125" alt="I'm an image" title="I'm an image"></div>
+																<div class="alignment" align="center" style="line-height:10px"><img src="{{asset('storage/Images/CMSlogo.png')}}" style="display: block; height: auto; border: 0; width: 250px; max-width: 100%;" width="250" alt="CMS Logo" title="CMS Logo"></div>
 															</td>
 														</tr>
 													</table>
@@ -112,35 +112,6 @@
 														<tr>
 															<td class="pad">
 																<div></div>
-															</td>
-														</tr>
-													</table>
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-					<table class="row row-2" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
-						<tbody>
-							<tr>
-								<td>
-									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #f9f9f9; color: #000000; width: 680px;" width="680">
-										<tbody>
-											<tr>
-												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
-													<table class="divider_block block-1" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
-														<tr>
-															<td class="pad">
-																<div class="alignment" align="center">
-																	<table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
-																		<tr>
-																			<td class="divider_inner" style="font-size: 1px; line-height: 1px; border-top: 1px solid #000000;"><span>&#8202;</span></td>
-																		</tr>
-																	</table>
-																</div>
 															</td>
 														</tr>
 													</table>

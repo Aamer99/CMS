@@ -135,7 +135,7 @@
 															<td class="pad" style="vertical-align: middle; color: #000000; font-family: inherit; font-size: 14px; text-align: left;">
 																<table class="alignment" cellpadding="0" cellspacing="0" role="presentation" align="left" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
 																	<tr>
-																		<td style="vertical-align: middle; text-align: center; padding-top: 20px; padding-bottom: 20px; padding-left: 20px; padding-right: 20px;"><img class="icon" src="https://d1oco4z2z1fhwp.cloudfront.net/templates/default/7071/_logo.png" height="64" width="143" align="center" style="display: block; height: auto; margin: 0 auto; border: 0;"></td>
+																		<td style="vertical-align: middle; text-align: center; padding-top: 20px; padding-bottom: 20px; padding-left: 20px; padding-right: 20px;"><img class="icon" src="{{asset('storage/Images/CMSlogo.png')}}"  height="64" width="143" align="center" style="display: block; height: auto; margin: 0 auto; border: 0;"></td>
 																	</tr>
 																</table>
 															</td>

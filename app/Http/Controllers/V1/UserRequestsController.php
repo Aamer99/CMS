@@ -53,7 +53,7 @@ class UserRequestsController extends Controller
               $request-> status = 1; 
               $request-> save(); 
 
-              Mail::to($user-> email)->queue(new requestNotifyMail($request-> request_number,$user-> name));
+              Mail::to($user-> email)->queue(new requestNotifyMail($request-> request_number, $user-> name));
 
               return response()-> json(["message"=> "the requests approved successfully "],200);
                
@@ -78,7 +78,7 @@ class UserRequestsController extends Controller
             
 
              if($request){
-            //     // if($request-> status == 0){
+                if($request-> department_id == auth()->user()-> department_id){
 
                $user = User::find($request-> owner_id);
                $request-> status = 1; 
@@ -87,11 +87,11 @@ class UserRequestsController extends Controller
                Mail::to($user-> email)->queue(new requestNotifyMail($request-> request_number,$user-> name));
 
                return response()-> json(["message"=> "the requests approved successfully "],200);
-            //     // }else{
+             }else{
 
-            //     //     return response()-> json(["message"=> "the request not found"],404);
-            //     // }
-            //return response()->json(["message"=>$request]);
+               return response()-> json(["message"=> "you don't have access to this request "],401);
+             }
+            
 
             } else{
 
@@ -125,14 +125,14 @@ class UserRequestsController extends Controller
         }
     }
 
-    public function getDepartmentRequests(string $department_id){
+    public function getDepartmentRequests(){
         try{
 
-            $department = Department::find($department_id);
+            $department = Department::find(auth()-> user()-> department_id); 
 
             if($department){
 
-                    $requests = UserRequest::where(["department_id"=>$department-> id,"type"=> 1,"status"=> 0])-> get();
+                    $requests = UserRequest::where(["owner_id"=> !auth()-> user()-> id,"type"=> 1,"status"=> 0])-> get();
                     if(count($requests)){
                     return response()->json(["requests"=> $requests],200);
                      } else {

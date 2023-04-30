@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Route;
      Route::group(['prefix'=>'v1','middleware'=>'App\Http\Middleware\ManagerAuth'],function(){
    
         Route::post("/manager/requestAddEmployee/{department_id}",[ManagerContoller::class,"requestAddEmployee"]);
-        Route::get("/department/requests/{department_id}",[UserRequestsController::class,"getDepartmentRequests"]);
+        Route::get("/department/requests/",[UserRequestsController::class,"getDepartmentRequests"]);
         Route::post("/manager/employeeRequests/approved/{request_id}",[UserRequestsController::class,"approvedEmployeeRequest"]);
         
     });
@@ -38,8 +38,10 @@ use Illuminate\Support\Facades\Route;
         Route::post("/admin/approvedAddEmployeeRequest/{user_id}",[AdminContoller::class,"approvedAddEmployeeRequest"]);
         Route::post("/admin/addNewManager",[AdminContoller::class,"addNewManager"]);
         Route::post("/admin/managerRequests/approved/{request_id}",[UserRequestsController::class,"approvedManagerRequest"]);
-        Route::post("/department/createOne",[DepartmentContoller::class,"createNewDepartment"]);
-        Route::delete("/user/requests/deny/{request_id}",[UserRequestsController::class,"denyRequest"]);
+        Route::post("admin/department/createOne",[DepartmentContoller::class,"createNewDepartment"]);
+        Route::get("/admin/department/getOne/{department_id}",[DepartmentContoller::class,"getOneDepartment"]);
+        Route::get("/admin/department/all",[DepartmentContoller::class,"getAllDepartments"]);
+        
         Route::get("/admin/managerRequests/{user_id}",[UserRequestsController::class,"getManagerRequests"]);
         
     });
@@ -49,6 +51,8 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix'=>'v1','middleware'=>'App\Http\Middleware\RoleAuth'],function(){
 
     Route::post("/user/notifyUser/{sender_id}",[UserController::class,"notifyUser"]);
+    Route::delete("/user/requests/deny/{request_id}",[UserRequestsController::class,"denyRequest"]);
+
     
 });
 

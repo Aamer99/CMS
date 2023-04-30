@@ -104,7 +104,7 @@
 													<table class="image_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
 														<tr>
 															<td class="pad" style="padding-bottom:15px;padding-top:15px;width:100%;padding-right:0px;padding-left:0px;">
-																<div class="alignment" align="left" style="line-height:10px"><img src="https://d1oco4z2z1fhwp.cloudfront.net/templates/default/18/ecommerce-template_logo.png" style="display: block; height: auto; border: 0; width: 186px; max-width: 100%;" width="186" alt="Image" title="Image"></div>
+																<div class="alignment" align="left" style="line-height:10px"><img src="{{asset('storage/Images/CMSlogo.png')}}" style="display: block; height: auto; border: 0; width: 186px; max-width: 100%;" width="186" alt="Image" title="Image"></div>
 															</td>
 														</tr>
 													</table>
