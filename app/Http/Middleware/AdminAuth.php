@@ -16,16 +16,14 @@ class AdminAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(Auth::check()){ 
+        
             $currentUser = auth()->user();
             if($currentUser-> type == 0){
                 return $next($request);
-            } else {
-                return response()->json(["message"=> " you don't have access"],403);
-            }
-            
-        } 
+            } 
 
-        return response()->json(["message"=> "Unauthorized"],401);
+
+                return response()->json(["message"=> " you don't have access"],403);
+     
     }
 }

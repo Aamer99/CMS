@@ -6,85 +6,102 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
 use App\Mail\notifyMail;
+use App\Mail\requestNotifyMail;
 use App\Mail\welcomeMail;
 use App\Models\Department;
+use App\Models\Role;
+use App\Models\UnapprovedUser;
 use App\Models\User;
+use App\Traits\HttpResponses;
 use Error;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Models\Request as UserRequest;
 
 class AdminContoller extends Controller
 {
+
+    use HttpResponses;
     
     
     public function getAllAddEmployeeRequests()
     {
          try{ 
 
-           $users = User::where("approved",false)->get(); 
+           $users = UnapprovedUser::all();
 
-           return response()->json(["users"=>$users],200);
+           return $this->success($users,"successful",200);
 
          }catch(Error $err){
-            return response()-> json(["message"=> $err],400);
+            return $this->error($err,400);
          }
     }
 
     
 
-    public function getAddEmployeeRequest(Request $request,string $user_id)
+    public function getAddEmployeeRequest($id)
     {
         try{
 
-            $user = User::where(["approved"=>false,"id"=>$user_id,"type"=>2])->get();
-        if(count($user)){
+            $user = UnapprovedUser::findOrFail($id);
 
-            return response()->json(['user'=> $user],200);
-        }
-        return response()->json(['message'=> "user not exist"],404);
+        
+        return $this->success($user,"successful",200);
 
-        } catch(Error $err){
-            return response()->json(["message"=> $err],400);
+        } catch(ModelNotFoundException $err){
+            return $this->error($err->getMessage(),404);
         }
     }
 
   
-    public function approvedAddEmployeeRequest(string $user_id)
+    public function approvedManagerRequests(Request $request)
     {
         try{ 
-            $user = User::where(["approved"=>false,"id"=>$user_id,"type"=>2])->get();
 
-            if(count($user)){
-                
-            $employee = User::find($user_id);
-            $department = Department::find($employee-> department_id);
-            $employee -> approved = true; 
-            $employeePassword = Crypt::decrypt($employee-> password);
-            $employee-> password = Hash::make($employeePassword);
-            $employee -> save();
-               
-             Mail::to($employee-> email)->queue(new welcomeMail($employee-> email,$employee-> name,$employeePassword,$employee-> type));
-             Mail::to($employee-> email)->queue(new notifyMail($department -> name." Department"," ","Welcome! We’re thrilled to have you with us. We had a lot of applicants, and we chose you because we believe that your skills, experience and creativity will have a real impact on our team. We're so excited to have you be part of our team, and we can’t wait to see what you do!"));
+            if($request-> request_type == 1){ 
 
-            return response()-> json(['messsage'=> "the employee successfully approved "],200);
-        }else{
+                $userRole = Role::find(3);  
 
-            return response()->json(["message"=>"the user not exsit"],404);
+                $employee = $userRole->unapprovedUsers->find($request-> user_id);
+
+                if($employee){
+
+                 $newEmployee = $this->approveAddNewEmployee($employee);
+
+                return $this->success($newEmployee,"the request approved successfully",200);
+                }else{
+                    return $this->error("the user not exist",404);
+                }
+
+            }else{
+
+            $request = UserRequest::findOrFail($request->request_id);
+
+            $request->status = 2;
+            $request-> save();
+
+            $user = $request->owner;
+          
+            // Mail::to($user-> email)->queue(new requestNotifyMail($request-> request_number, $user-> name));
+
+            return $this->success($request,"the request approved successfully!",200);
         }
 
         }catch(Error $err){
             return response()-> json(['message'=> $err],400);
+        } catch(ModelNotFoundException $e){
+
+            return response()-> json(['message'=> $e->getMessage()],404);
         }
     }
 
     public function addNewManager(StoreUserRequest $request){
         try{
 
-            $department = Department::find($request-> department_id);
-
-            if($department){
+            $department = Department::findOrFail($request-> department_id);
 
                 $newManager = new User();
                 $newManager-> name = $request-> name; 
@@ -95,20 +112,37 @@ class AdminContoller extends Controller
                 $newManager-> phoneNumber = $request-> phoneNumber; 
                 $newManager-> department_id = $department-> id;
                 $newManager-> is_validate = false;
-                $newManager-> approved = true;
                 $newManager-> save();  
     
                 Mail::to($newManager-> email)->queue(new welcomeMail($newManager-> email,$newManager-> name,$managerPassowrd,$newManager-> type));
     
-                return response()-> json(["message"=> "the manager created successfully"],200);
-            } else{
-
-                return response()-> json(["message"=> "the department not exsit"],404);
-            }
-           
+                return $this->success(" ","the manager created successfully",200); 
 
         }catch(Error $err){
             return response()->json(["message"=> $err],400);
+        } 
+        catch(ModelNotFoundException $e){
+            return $this->error($e->getMessage(),404);
         }
+
     }   
+
+
+    public function approveAddNewEmployee(UnapprovedUser $employee){
+
+        $newEmployee = new User();
+        $newEmployee-> name = $employee-> name;
+        $newEmployee-> email = $employee-> email;
+        $newEmployee-> password = $employee-> password;
+        $newEmployee-> phoneNumber = $employee->phoneNumber;
+        $newEmployee-> type = $employee->type;
+        $newEmployee-> department_id = $employee->department_id;
+        $newEmployee-> is_validate = $employee->is_validate;
+        $newEmployee-> save(); 
+        $employee->delete();
+//  Mail::to($employee-> email)->queue(new welcomeMail($employee-> email,$employee-> name,$employeePassword,$employee-> type));
+//  Mail::to($employee-> email)->queue(new notifyMail($department -> name." Department"," ","Welcome! We’re thrilled to have you with us. We had a lot of applicants, and we chose you because we believe that your skills, experience and creativity will have a real impact on our team. We're so excited to have you be part of our team, and we can’t wait to see what you do!"))
+
+      return true;
+    }
 }

@@ -9,39 +9,46 @@ use App\Http\Requests\EditProfileRequest;
 use App\Mail\notifyMail;
 use App\Mail\welcomeMail;
 use App\Models\Notify;
+use App\Traits\HttpResponses;
 use Error;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
-   
+   use HttpResponses;
 
-    public function editProfile(string $user_id,EditProfileRequest $request)
+
+    public function editProfile($id,EditProfileRequest $request)
     {
         try{
-        $user = User::find($user_id);
+
+        $user = User::findOrFail($id);
          
-        if($user){
+     
+
         $user-> name = $request-> name == null ? $user-> name : $request-> name;
         $user-> email =  $request-> email == null ? $user-> email: $request-> email; 
         $user-> password = $request-> password == null ? $user-> password : Hash::make($request-> password);
         $user-> phoneNumber = $request-> phoneNumber == null ? $user-> phoneNumber : $request-> phoneNumber; 
         $user-> save(); 
 
-         return response()->json(["message"=> "successful"],200);
-        } else{
-            return response()-> json(["message"=> "the user not exist"],400);
-        }
+         return $this->success($user,"successfull",200);
+
      } catch(Error $err){
 
-        return response()->json(["message"=> $err],400);
+        return $this->error($err,400);
+      }
+      catch(ModelNotFoundException $e){
+
+        return $this->error("the user not exist",404);
       }
     }
 
    
-    public function setPassword(Request $request,string $user_id)
+    public function setPassword(Request $request,$id)
     {
         try{ 
 
@@ -49,25 +56,27 @@ class UserController extends Controller
                 'password' => ['required','min:6','confirmed']
             ]);
 
-            $user = User::find($user_id);
-            if($user){
+            $user = User::findOrFail($id);
+          
 
                 $user-> password = Hash::make($request-> password); 
                 $user-> is_validate = true;
                 $user-> save(); 
                 Auth::logout();
-                return response()-> json(["message"=> 'set password successfully'],200);
-            }
-
-            return response()->json(["message"=>"user not found!!"],400);
-
+                
+                return $this->success("","set password successfully",200);
 
         }catch(Error $err){
-            return response()-> json(["message"=> $err],400);
+
+            return $this->error($err,400);
+
+        } catch(ModelNotFoundException $e){
+
+            return $this->error($e,404);
         }
     }
 
-    public function notifyUser(string $sender_id,Request $request)
+    public function notifyUser($id,Request $request)
     {
         try{
            
@@ -76,14 +85,11 @@ class UserController extends Controller
                 "received_id" => ['required']
             ]); 
 
-            $sender = User::find($sender_id);
-            $received = User::find($request-> received_id);
+            $sender = User::findOrFail($id);
+            $received = User::findOrFail($request-> received_id);
 
-          if($sender){
-            
-            if($sender-> type == 0 || $sender-> type == 1){
-                if($received){
-
+            if($sender-> type == 1 || $sender-> type == 2){
+        
                     if($received-> id != $sender-> id){
                         
                        $newNotify = new Notify();
@@ -92,25 +98,29 @@ class UserController extends Controller
                        $newNotify-> message = $request-> message; 
                        $newNotify-> save() ; 
 
-                       Mail::to($received-> email)->queue(new notifyMail($sender-> name,$sender-> email,$request-> message));
+                    //    Mail::to($received-> email)->queue(new notifyMail($sender-> name,$sender-> email,$request-> message));
 
-                       return response()-> json(["message"=> "the message send successfully "],200);
+                       return $this->success("","the message send successfully",200);
 
                        
                     } else{
-                        return response()-> json(["message"=> "you can't send message to your self"],400);
+
+                        return $this->error("you can't send message to your self",400);
                     }
-                } else{
-                    return response()->json(["message"=> "the user not exis!t"],404);
-                }
+
               
             } else{
-                return response()->json(["message"=> "unauthorized"],401);
+                return $this->error("unauthorized",401);
             }
-        }
-        return response()->json(["message"=> "the user not exist!"],400);
+       
         }catch(Error $err){
-            return response()-> json(["message"=> $err],400);
+
+            return $this->error($err,400);
+
+        } catch(ModelNotFoundException $err){
+
+            return $this->error("the user that you want to send him the message is not exist ",404);
+
         }
     }
 

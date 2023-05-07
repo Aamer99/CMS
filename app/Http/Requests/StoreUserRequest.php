@@ -26,6 +26,7 @@ class StoreUserRequest extends FormRequest
             'email'=> ['required','email','lowercase','unique:users'],
             // 'password' => ['required','min:6'],
             'phoneNumber' => ['required'],
+            'department_id' => ['required']
            
         ];
     }

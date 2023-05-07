@@ -13,109 +13,58 @@ use App\Http\Controllers\V1\RequestController as V1RequestController;
 use App\Http\Controllers\V1\UserRequestsController;
 use App\Http\Middleware\VerifyToken;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 
 
- Route::prefix('/')->middleware(VerifyToken::class)->group(function(){
 
-    //manager 
 
-     Route::group(['prefix'=>'v1','middleware'=>'App\Http\Middleware\ManagerAuth'],function(){
-   
-        Route::post("/manager/requestAddEmployee/{department_id}",[ManagerContoller::class,"requestAddEmployee"]);
-        Route::get("/department/requests/",[UserRequestsController::class,"getDepartmentRequests"]);
-        Route::post("/manager/employeeRequests/approved/{request_id}",[UserRequestsController::class,"approvedEmployeeRequest"]);
-        
-    });
+Route::post("v1/auth/login",[AuthController::class,"login"]);
+Route::post("v1/user/setPassword/{user_id}",[UserController::class,'setPassword']);
+Route::post("v1/auth/verifyOtp",[AuthController::class,"verifyOtp"]); 
+
+
+Route::prefix('/')->middleware("auth:api")->group(function(){
 
     //admin 
 
-    Route::group(['prefix'=>'v1','middleware'=>'App\Http\Middleware\AdminAuth'],function(){
-   
-        Route::get("/admin/getAlladdEmployeeRequests",[AdminContoller::class,"getAllAddEmployeeRequests"]);
-        Route::get("/admin/getAddEmployeeRequest/{user_id}",[AdminContoller::class,"getAddEmployeeRequest"]);
-        Route::post("/admin/approvedAddEmployeeRequest/{user_id}",[AdminContoller::class,"approvedAddEmployeeRequest"]);
-        Route::post("/admin/addNewManager",[AdminContoller::class,"addNewManager"]);
-        Route::post("/admin/managerRequests/approved/{request_id}",[UserRequestsController::class,"approvedManagerRequest"]);
-        Route::post("admin/department/createOne",[DepartmentContoller::class,"createNewDepartment"]);
-        Route::get("/admin/department/getOne/{department_id}",[DepartmentContoller::class,"getOneDepartment"]);
-        Route::get("/admin/department/all",[DepartmentContoller::class,"getAllDepartments"]);
-        
-        Route::get("/admin/managerRequests/{user_id}",[UserRequestsController::class,"getManagerRequests"]);
-        
+    Route::group(["prefix"=> "v1/admin","middleware"=>"App\Http\Middleware\AdminAuth"],function(){
+
+        Route::get("/requests/AddEmployee/getOne/{user_id}",[AdminContoller::class,"getAddEmployeeRequest"]);
+        Route::get("/requests/AddEmployee/getAll",[AdminContoller::class,"getAllAddEmployeeRequests"]);
+        Route::post("/requests/approved",[AdminContoller::class,"approvedManagerRequests"]);
+        Route::get('/requests/manager/getOne/{request_id}',[UserRequestsController::class,"getOneRequest"]);
+        Route::post("/addNewManager",[AdminContoller::class,"addNewManager"]);
+        Route::post("/department/createOne",[DepartmentContoller::class,"createNewDepartment"]);
+        Route::get("/department/getOne/{department_id}",[DepartmentContoller::class,"getOneDepartment"]);
+        Route::get("/department/all",[DepartmentContoller::class,"getAllDepartments"]);
+        Route::get("/department/requests/{department_id}",[DepartmentContoller::class,"getAlldepartmentRequests"]);
+
     });
 
-    // manager and admin 
+    Route::group(["prefix"=> "v1/manager","middleware"=>"App\Http\Middleware\ManagerAuth"],function(){
 
-Route::group(['prefix'=>'v1','middleware'=>'App\Http\Middleware\RoleAuth'],function(){
+          Route::post("/request/addNewEmployee",[ManagerContoller::class,"requestAddEmployee"]);
+          Route::post("/request/approved/{request_id}",[ManagerContoller::class,"approvedEmployeeRequest"]);
 
-    Route::post("/user/notifyUser/{sender_id}",[UserController::class,"notifyUser"]);
-    Route::delete("/user/requests/deny/{request_id}",[UserRequestsController::class,"denyRequest"]);
+    });
 
-    
+    Route::group(["prefix"=>"v1/user/"],function(){
+
+        Route::put("/editProfile/{user_id}",[UserController::class,"editProfile"]);
+        Route::post("/sendMessage/{user_id}",[UserController::class,"notifyUser"]);
+        Route::post("/logout",[AuthController::class,"logout"]);
+
+    });
+
+    Route::group(["prefix"=> "v1/request/"],function(){
+
+        Route::get("/data/{request_id}",[UserRequestsController::class,"getOneRequest"]);
+        Route::get("/data/userRequests/{user_id}",[UserRequestsController::class,"getUserRequestsByID"]);
+        Route::get("/data/departmentRequests/{department_request}",[UserRequestsController::class,"getDepartmentRequests"]);
+        Route::delete("/deny/{request_id}",[UserRequestsController::class,"denyRequest"]);
+        Route::post("/createOne/{user_id}",[UserRequestsController::class,"createRequest"]);
+        
+    });
 });
-
- // all users 
- Route::group(['prefix'=>'v1'],function(){
-
-    Route::post("/user/requests/create/{user_id}",[UserRequestsController::class,"createRequest"]);
-    Route::get("/user/requests/getOne/{request_id}",[UserRequestsController::class,"getOneRequest"]);
-    Route::get("/user/requests/{user_id}",[UserRequestsController::class,"getUserRequests"]);
-    Route::put("/user/editProfile/{user_id}",[UserController::class,'editProfile']);
-    
-    Route::post("/auth/logout",[AuthController::class,"logout"]);
-    
- });
-
-
-
- });
-
- Route::group(['prefix'=>'v1','middleware'=>'App\Http\Middleware\authCheck'],function(){
-
-    Route::post("/auth/verifyOtp",[AuthController::class,"verifyOtp"]);
-    Route::post("/user/setPassword/{user_id}",[UserController::class,'setPassword']);
-
- });
-
-
-Route::group(['prefix'=>'v1','namespace'=> 'App\Http\Controllers\V1\AuthController'],function(){
-   
-    Route::post("/auth/login",[AuthController::class,"login"]);
-  
-   
-});
-
-
-
-// Route::group(['prefix'=>'v1','namespace'=> 'App\Http\Controllers\V1\AdminContoller'],function(){
-   
-//     Route::get("/admin/getAlladdEmployeeRequests",[AdminContoller::class,"getAddEmployeeRequests"]);
-//     Route::get("/admin/getAddEmployeeRequest/{user_id}",[AdminContoller::class,"getAddEmployeeRequest"]);
-//     Route::post("/admin/approvedAddEmployeeRequest/{user_id}",[AdminContoller::class,"approvedAddEmployeeRequest"]);
-//     Route::post("/admin/addNewManager",[AdminContoller::class,"addNewManager"]);
-//     Route::get("/admin/request/{request_id}",[AdminContoller::class,"getOneRequest"]);
-//     Route::get("/admin/request/all",[AdminContoller::class,"getAllRequests"]);
-//     Route::post("/admin/request/{request_id}",[AdminContoller::class,"approvedRequest"]);
-   
-// });
-
-// Route::group(['prefix'=>'v1','namespace'=> 'App\Http\Controllers\V1'],function(){
-
-//     Route::post("/users/editProfile/{user_id}",[UserController::class,'editProfile']);
-//     Route::post("/users/setPassword/{user_id}",[UserController::class,'setPassword']);
-//     Route::post("/users/notifyUser/{sender_id}",[UserController::class,"notifyUser"]);
-    
-// });
-
-//  Route::group(['prefix'=>'v1','namespace'=> 'App\Http\Controllers\V1\UserRequestsController'],function(){
-//     Route::post("/user/requests/create/{user_id}",[UserRequestsController::class,"createRequest"]);
-//     Route::post("/user/requests/approved/{request_id}",[UserRequestsController::class,"approvedRequest"]);
-//     Route::get("/user/requests/getOne/{request_id}",[UserRequestsController::class,"getOneRequest"]);
-//     Route::get("/user/requests/{user_id}",[UserRequestsController::class,"getUserRequests"]);
-//     Route::get("/user/requests/all/{user_id}",[UserRequestsController::class,"getAllRequests"]);
-//     Route::delete("/user/requests/deny/{request_id}",[UserRequestsController::class,"denyRequest"]);
-//  });
-
-

@@ -3,13 +3,19 @@
 namespace App\Http\Middleware;
 
 use App\Models\AccessToken;
+use App\Models\TemporallyToken;
+use App\Traits\HttpResponses;
 use Closure;
+use Error;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class VerifyToken
 {
+
+
+  use HttpResponses;
     /**
      * Handle an incoming request.
      *
@@ -22,27 +28,38 @@ class VerifyToken
         
         if(Auth::check()){
 
-          $token = AccessToken::where("user_id",auth()-> user()-> id)->first(); 
-
-          if($token){
-
-             $currentDate = strtotime(now());
-             $expiredDate = strtotime($token-> expired_at);
-
-             if($currentDate < $expiredDate){ 
-           
-                return $next($request);
-    
-              } else {
-                
-                return response()-> json(["you need to login again"],401);
-              }
-          }
         
-        return response()-> json(["message"=> "Unauthorized"],401);
+            $token = $request->token; 
+
+            if($token){
+              $accessToken = auth()->user()->temporallyToken; 
+              
+
+              if($accessToken){
+
+                $currentDate = strtotime(now());
+                $expiredDate = strtotime($accessToken-> expires_at); 
+
+                if($currentDate < $expiredDate){ 
+           
+                  // return response()->json(["message"=> $accessToken]);
+                  return $next($request);
+      
+                } else {
+                  
+                  return $this->error("Unauthorized",401);
+                }
+
+
+              }
+
+            }
+        
+            return $this->error("Unauthorized",401);
         
         } else{
-            return response()-> json(["message"=> "Unauthorized"],401);
+
+          return $this->error("Unauthorized",401);
         }
         
     }

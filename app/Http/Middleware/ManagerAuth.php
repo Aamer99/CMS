@@ -16,16 +16,14 @@ class ManagerAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(Auth::check()){ 
+        
             $currentUser = auth()->user();
-            if($currentUser-> type == 1){
+            if($currentUser-> type == 2){
                 return $next($request);
             } else {
                 return response()->json(["message"=> " you don't have access"],403);
             }
             
-        } 
-
-        return response()->json(["message"=> "Unauthorized"],401);
+        
     }
 }

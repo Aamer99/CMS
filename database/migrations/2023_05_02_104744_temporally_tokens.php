@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('access_tokens', function (Blueprint $table) {
+        Schema::create('otp_tokens', function (Blueprint $table) {
             $table->id();
-            $table-> longText("token");
-            $table-> string("user_id");
-            $table->timestamp("expired_at");
+            $table->longText('token');
+            $table->timestamp('expires_at')->nullable();
+            $table->string('user_id');
         });
     }
 
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('access_tokens');
+        Schema::dropIfExists('otp_tokens');
     }
 };

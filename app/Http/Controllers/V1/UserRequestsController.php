@@ -11,138 +11,112 @@ use App\Models\Department;
 use App\Models\File;
 use App\Models\Request as UserRequest;
 use App\Models\User;
+use App\Traits\HttpResponses;
 use Error;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 
 class UserRequestsController extends Controller
 {
-    
-    public function getOneRequest(string $request_id){
+    use HttpResponses;
+
+    public function getOneRequest($id){
         try{
 
-            $request = UserRequest::find($request_id);
-
-            if($request){
-
-             return response()-> json(["request"=> $request],200);
-
-            } else{
-
-                return response()-> json(["message"=> "not found"],404);
-            }
+            $request = UserRequest::findOrFail($id);
+   
+             return $this->success($request,"successful",200);
 
         }catch(Error $err){
 
-            return response()-> json(["message"=> $err],400);
+            return $this->error($err,400);
+
+        }catch(ModelNotFoundException $e){
+            return $this->error("the request not exist",404);
         }
     }
 
    
-    public function approvedManagerRequest(string $request_id){
-        try{
+    // public function approvedManagerRequest(string $request_id){
+    //     try{
 
-            $request = UserRequest::where(["id"=> $request_id,"type"=>1,"status"=>0])-> first(); 
+    //         $request = UserRequest::where(["id"=> $request_id,"type"=>1,"status"=>0])-> first(); 
             
 
-            if($request){
+    //         if($request){
                 
 
-              $user = User::find($request-> owner_id);
-              $request-> status = 1; 
-              $request-> save(); 
+    //           $user = User::find($request-> owner_id);
+    //           $request-> status = 1; 
+    //           $request-> save(); 
 
-              Mail::to($user-> email)->queue(new requestNotifyMail($request-> request_number, $user-> name));
+    //           Mail::to($user-> email)->queue(new requestNotifyMail($request-> request_number, $user-> name));
 
-              return response()-> json(["message"=> "the requests approved successfully "],200);
+    //           return response()-> json(["message"=> "the requests approved successfully "],200);
                
 
-            } else{
+    //         } else{
 
-                return response()-> json(["message"=> "the request not found"],404);
-            }
+    //             return response()-> json(["message"=> "the request not found"],404);
+    //         }
 
-        }catch(Error $err){
+    //     }catch(Error $err){
 
-            return response()-> json(["message"=> $err],400);
-        }
-    }
+    //         return response()-> json(["message"=> $err],400);
+    //     }
+    // }
 
     
 
-    public function approvedEmployeeRequest(string $request_id){
+   
+
+    public function denyRequest($id){
+
         try{
 
-             $request = UserRequest::where(["id"=> $request_id,"type"=> 2,"status"=> 0])->first(); 
+            $currentUserRole = Auth::user()->role-> id; 
             
 
-             if($request){
-                if($request-> department_id == auth()->user()-> department_id){
 
-               $user = User::find($request-> owner_id);
-               $request-> status = 1; 
-               $request-> save(); 
+            if($currentUserRole == 1|| $currentUserRole == 2){
 
-               Mail::to($user-> email)->queue(new requestNotifyMail($request-> request_number,$user-> name));
+                $request = UserRequest::findOrFail($id);
+                $user = $request-> owner;
+    
+                $request-> delete();
 
-               return response()-> json(["message"=> "the requests approved successfully "],200);
-             }else{
+         //  Mail::to($user-> email)->queue(new requestNotifyMail($request-> request_number,$user-> name));
 
-               return response()-> json(["message"=> "you don't have access to this request "],401);
-             }
+            return $this->success(""," the request denied successfully ",200);
+            } 
+
+            return $this->error("Unauthenticated!",401);
+           
             
-
-            } else{
-
-                return response()-> json(["message"=> "the request not found"],404);
-            }
+     
+         
 
         }catch(Error $err){
 
-            return response()-> json(["Error message"=> $err],400);
+            return $this->error($err,400);
+
+        }catch(ModelNotFoundException $e){
+
+            return $this->error($e,404);
+
         }
     }
 
-    public function denyRequest(string $request_id){
+    public function getDepartmentRequests($id){
         try{
 
-            $request = UserRequest::find($request_id);
-            $user = User::find($request-> owner_id);
-            if($request){ 
-            $request-> delete();
-            
-            Mail::to($user-> email)->queue(new requestNotifyMail($request-> request_number,$user-> name));
+            $department =Department::findOrFail($id); 
+            $requests = $department-> requests; 
 
-            return response()->json(["message"=>" the request denied successfully "],200);
-            } else{
-
-                return response()->json(["message"=> "the request not found"],404);
-            }
-
-        }catch(Error $err){
-            return response()-> json(["message"=> $err],400);
-        }
-    }
-
-    public function getDepartmentRequests(){
-        try{
-
-            $department = Department::find(auth()-> user()-> department_id); 
-
-            if($department){
-
-                    $requests = UserRequest::where(["owner_id"=> !auth()-> user()-> id,"type"=> 1,"status"=> 0])-> get();
-                    if(count($requests)){
-                    return response()->json(["requests"=> $requests],200);
-                     } else {
-                        return response()->json(["message"=> "there is no requests found","code"=> 4040],404);
-                    }
-                
-            } else {
-                return response()-> json(["message"=> "the department not exist","code"=> 4041],404);
-            }
-
+            return $this->success($requests,"successfull",200);
 
         }catch(Error $err){
             return response()-> json(["message"=> $err],400);
@@ -151,44 +125,36 @@ class UserRequestsController extends Controller
     }
 
 
-    public function getManagerRequests(string $user_id){
+    public function getUserRequestsByID($id){
         try{
 
-            $requests = UserRequest::where(["status"=> 0 ,"type"=> 1,"owner_id"=> $user_id])->get();
+            $managerRequests = User::findOrFail($id)->requests->where("status",2); 
 
-            if(count($requests)){
-            return response()->json(["message"=>$requests]);
-            }else{
-                return response()->json(["message"=> "there is no requests"],404);
-            }
+            return $this->success($managerRequests,"successfull",200);
+
         }catch(Error $err){
-            return response()->json(["message"=> $err],400);
+
+            return $this->error($err,400);
+
+        } catch(ModelNotFoundException $e){
+
+            return $this->error("the user not exist",404);
         }
     }
 
-    public function getUserRequests(string $user_id){
+   
+
+    public function createRequest($id,StoreRequests $request){
         try{
 
-            $request = UserRequest::where("owner_id",$user_id)->get(); 
-
-            return response()-> json(["requests"=> $request]);
-
-        }catch(Error $err){
-            return response()-> json(["messsage"=> $err],400);
-        }
-    }
-
-    public function createRequest(StoreRequests $request,string $user_id){
-        try{
-
-            $user = User::find($user_id);
+            $user = User::findorFail($id);
  
-            if($user){
 
-                // $request_number = $user-> type == 1 ? 'M-' : "E-";
+               
                 $request_number = Str::random(2) . '-'.sprintf("%06d", mt_rand(1, 9999999));
 
                $file_id = $this->uploadFile($request,$request_number);
+
                if($file_id){
 
                 $newRequest = new UserRequest(); 
@@ -201,20 +167,21 @@ class UserRequestsController extends Controller
                 $newRequest-> description = $request-> description; 
                 $newRequest-> save(); 
                   $date = date("l d F Y");
-                 Mail::to($user-> email)->queue(new sendedRequestMail($newRequest-> request_number,$date));
+                //  Mail::to($user-> email)->queue(new sendedRequestMail($newRequest-> request_number,$date));
 
-              return response()-> json(["message"=> "the request send successfully"],200);
-               } else{
-                return response()-> json(["message"=> "please check your file"],400);
+              return $this->success("","the request send successfully",200);
                }
 
-            } else{
-                
-                return response()-> json(["message"=> "sorry the user not exist "],400);
-            }
-
+                return $this->error("please check your file",400);
+               
         }catch(Error $err){
-            return response()-> json(["message"=> $err],400);
+
+            return $this->error($err,400);
+
+        } catch(ModelNotFoundException $e){
+
+            return $this->error("the user not exist ",404);
+
         }
     }
 
