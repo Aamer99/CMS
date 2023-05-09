@@ -7,7 +7,7 @@ export default{
    
     data(){
         return{
-        authenticated: true,
+        authenticated: false,
         otp:[],
         formValues:{
             email:"",
@@ -54,7 +54,8 @@ export default{
       </div>
   
       <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form class="space-y-6" @submit="login" method="POST">
+        <form class="space-y-6" @submit.prevent="login">
+
           <div>
             <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email address</label>
             <div class="mt-2">
