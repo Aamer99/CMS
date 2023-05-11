@@ -1,19 +1,45 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import LoginView from '../views/LoginView.vue'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: HomeView
-    },
+  
       {
       path: '/login',
       name: 'login',
-      component: LoginView
+      component: ()=> import('../views/LoginView.vue')
     },
+    {
+      path: '/admin/',
+      name: 'AdminHome',
+      component: ()=> import('../components/Home.vue'),
+      props:{ menu:[{"title":"Dashboard","destination":"/admin"},{"title":"Departments","destination":"/admin/department"},{"title":"Managers","destination":"/admin/managers"},{"title":"Requests","destination":"/admin/requests"},{"title":"Send Message","destination":"/sendMessage"}]},
+      children:[
+        {
+          path: '/admin/department',
+          name: 'Department',
+          component: ()=> import('../views/Admin/Departments.vue')
+        },
+        {
+          path: '/admin/',
+          name: 'Dashboard',
+          component: ()=> import('../views/Admin/Dashboard.vue')
+        },
+        {
+          path: '/admin/requests',
+          name: 'ManagerRequests',
+          component: ()=> import('../views/Admin/ManagerRequests.vue')
+        },
+        {
+          path: '/admin/managers',
+          name: 'Managers',
+          component: ()=> import('../views/Admin/Managers.vue')
+        },
+      ]
+    },
+   
+ 
     {
       path: '/about',
       name: 'about',
