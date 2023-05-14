@@ -10,10 +10,14 @@ class Role extends Model
     use HasFactory; 
     public $timestamps = false; 
 
-    public function users(){
-        return $this->hasMany(User::class,"type");
-    }
+    // public function users(){
+    //     return $this->hasMany(User::class,"type");
+    // }
     public function unapprovedUsers(){
         return $this->hasMany(UnapprovedUser::class,"type");
+    }
+
+    public function users(){
+        return $this->hasMany(usersRoles::class,"role_id");
     }
 }

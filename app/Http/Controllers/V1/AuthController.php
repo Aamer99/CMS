@@ -3,26 +3,31 @@
 namespace App\Http\Controllers\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\otpRequest;
-use App\Jobs\sendOtpMail;
-use App\Mail\otpMail;
-use App\Models\AccessToken;
+use App\Http\Resources\UserResource;
 use App\Models\Otp;
-use App\Models\OtpToken;
 use App\Models\Role;
-use App\Models\TemporallyToken;
-use App\Models\User;
-use App\Traits\HttpResponses;
+use App\Traits\OtpOperations;
 use Error;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Laravel\Sanctum\NewAccessToken;
+
 
 class AuthController extends Controller
 {
-    use HttpResponses;
+    use OtpOperations;
+
+
+
+    public function checkRole(){
+
+         $userRole = auth()->user()->role;
+         $role = Role::find(1)->users;
+
+         return response()->json(["user roles"=>$userRole,"roles"=>$role],200);
+
+    }
+  
 
     public function login(Request $request)
     {
@@ -39,16 +44,14 @@ class AuthController extends Controller
 
             } else {
 
-            // create token 
+            // create otp 
 
-          $token = $this->generateToken();
-
-        //    return response()->json(["message"=> auth()->user()->otp_token],202);
-           $otpExpiredDate = $this->generateOTP();
+         
+           $otp = $this->generateOTP();
          
             //   Mail::to(auth()->user()-> email)-> queue(new otpMail($otpCode));
 
-           return $this->success(auth()->user(),['token'=> $token,'OTP_expired_at'=> $otpExpiredDate],200);
+           return $this->successWithData($otp,"successful",200);
 
         }
         } else{
@@ -83,10 +86,10 @@ class AuthController extends Controller
                     //Generate  token 
                     $token = auth()->user()->createToken('token')->accessToken; 
 
-                    return $this->success([
+                    return $this->successWithData([
                         'token'=> $token,
-                        'user'=> $otp->user
-                    ],"successfull login",200);
+                        'user'=> new UserResource($otp->user),
+                    ],"successful login",200);
                 } else {
                     return $this->error('the otp code is expired',400);
                 }
@@ -105,77 +108,12 @@ class AuthController extends Controller
 
              auth()->user()->token()->revoke(); 
             
-            return $this->success(null,"logged out successfully",200);
+            return $this->success("logged out successfully",200);
 
         }catch(Error $err){
             return $this->error($err,400);
         }
 
-    }
-
-
-    public function generateOTP(){
-
-            $otp = auth()->user()->otp;
-            $token= auth()->user()-> otp_token;
-
-            $otpCode = sprintf("%06d", mt_rand(1, 999999)); 
-            $otpExpiredDate = now()->addMinutes(5);
-
-            if($otp){
-              
-                $newOtp = $otp;
-                $newOtp-> token = $token-> token;
-                $newOtp-> otp = $otpCode;
-                $newOtp-> expired_at = $otpExpiredDate;
-                $newOtp-> save();
-         
-            } else {
-
-            $newOtp = new Otp();
-            $newOtp-> user_id= auth()->user()-> id; 
-            $newOtp-> otp = $otpCode; 
-            $newOtp-> token = $token-> token;
-            $newOtp-> expired_at = $otpExpiredDate;
-            $newOtp->save();
-              
-            } 
-
-            return $otpExpiredDate;
-    }
-
-    public function generateToken(){
-
-         $existToken = auth()->user()->otp_token;
-        $token =  Str::random(100);  
-   
-        if($existToken){
-           
-            $existToken-> token = $token;
-            $existToken-> expires_at = now()->addMinutes(10);
-            $existToken-> save();
-       
-
-        } else{
-         
-            $newToken = new OtpToken();
-            $newToken-> token = $token;
-            $newToken-> expires_at = now()->addMinutes(10);
-            $newToken-> user_id = auth()->user()-> id; 
-            $newToken-> save();  
-          
-         
-        }
-
-        return $token;
-    }
-
-    public function details(){
-        
-        $role = Role::find(1);
-        $user = $role->user;
-
-        return response()->json(["user"=> $user]);
     }
     
  

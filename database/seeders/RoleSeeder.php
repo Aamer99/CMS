@@ -17,13 +17,16 @@ class RoleSeeder extends Seeder
         $managerRole = new Role();
         $employeeRole = new Role();
         
-        $adminRole-> role = "Admin";
+        $adminRole-> role_name = "Admin";
+       
         $adminRole-> save();
 
-        $managerRole-> role = "Manager";
+        $managerRole-> role_name = "Manager";
+        
         $managerRole-> save();
         
-        $employeeRole-> role = "Employee";
+        $employeeRole-> role_name = "Employee";
+        
         $employeeRole-> save();
 
 

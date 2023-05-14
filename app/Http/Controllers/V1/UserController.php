@@ -35,7 +35,7 @@ class UserController extends Controller
         $user-> phoneNumber = $request-> phoneNumber == null ? $user-> phoneNumber : $request-> phoneNumber; 
         $user-> save(); 
 
-         return $this->success($user,"successfull",200);
+         return $this->successWithData($user,"successful",200);
 
      } catch(Error $err){
 
@@ -64,7 +64,7 @@ class UserController extends Controller
                 $user-> save(); 
                 Auth::logout();
                 
-                return $this->success("","set password successfully",200);
+                return $this->success("password reset successfully",200);
 
         }catch(Error $err){
 
@@ -76,7 +76,7 @@ class UserController extends Controller
         }
     }
 
-    public function notifyUser($id,Request $request)
+    public function notifyUser(Request $request)
     {
         try{
            
@@ -85,7 +85,7 @@ class UserController extends Controller
                 "received_id" => ['required']
             ]); 
 
-            $sender = User::findOrFail($id);
+            $sender = auth()->user();
             $received = User::findOrFail($request-> received_id);
 
             if($sender-> type == 1 || $sender-> type == 2){
@@ -100,7 +100,7 @@ class UserController extends Controller
 
                     //    Mail::to($received-> email)->queue(new notifyMail($sender-> name,$sender-> email,$request-> message));
 
-                       return $this->success("","the message send successfully",200);
+                       return $this->success("the message send successfully",200);
 
                        
                     } else{

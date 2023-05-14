@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\V1;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DepartmentResource;
+use App\Http\Resources\RequestsResource;
 use App\Models\Department;
 use App\Traits\HttpResponses;
 use Error;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
-class DepartmentContoller extends Controller
+class DepartmentController extends Controller
 {
 
-    use HttpResponses;
 
    
     public function createNewDepartment(Request $request)
@@ -26,7 +27,7 @@ class DepartmentContoller extends Controller
         $newDepartment-> name = $request-> name;
         $newDepartment-> save();
 
-        return $this->success($newDepartment,"Department created successfully",200);
+        return $this->successWithData( new DepartmentResource($newDepartment),"Department created successfully",200);
         
         } catch(Error $err){
             return $this->error($err,400);
@@ -36,9 +37,10 @@ class DepartmentContoller extends Controller
     public function getOneDepartment($id){
         try{
 
-            $department = Department::findOrFail($id);
+            $department = new DepartmentResource(Department::findOrFail($id));
+            
 
-                 return $this->success($department,"successful",200);
+                 return $this->successWithData($department,"successful",200);
 
         }catch(Error $err){
             return $this->error($err,400);
@@ -51,8 +53,8 @@ class DepartmentContoller extends Controller
     public function getAllDepartments(){
         try{ 
 
-            $departments = Department::all();
-            return $this->success($departments,"successful",200);
+            $departments = DepartmentResource::collection( Department::all());
+            return $this->successWithData($departments,"successful",200);
            
 
         }catch(Error $err){
@@ -60,12 +62,12 @@ class DepartmentContoller extends Controller
         }
     }
 
-    public function getAlldepartmentRequests($id){
+    public function getAllDepartmentRequests($id){
         try{
 
-            $departmentRequests = Department::findOrFail($id)-> requests;
+            $departmentRequests = RequestsResource::collection(Department::findOrFail($id)-> requests);
 
-            return $this->success($departmentRequests,"successfull",200);
+            return $this->successWithData($departmentRequests,"successful",200);
 
 
         }catch(Error $err){

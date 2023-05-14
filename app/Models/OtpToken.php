@@ -10,6 +10,9 @@ class OtpToken extends Model
     use HasFactory;
 
     public $timestamps = false; 
+    protected $fillable = ['token','user_id','expires_at'];
+
+
 
 
     public function user(){

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRequests;
+use App\Http\Resources\RequestsResource;
 use App\Mail\requestNotifyMail;
 use App\Mail\sendedRequestMail;
 use App\Models\Department;
@@ -21,14 +22,13 @@ use Illuminate\Support\Str;
 
 class UserRequestsController extends Controller
 {
-    use HttpResponses;
 
     public function getOneRequest($id){
         try{
 
-            $request = UserRequest::findOrFail($id);
+            $request = new RequestsResource(UserRequest::findOrFail($id));
    
-             return $this->success($request,"successful",200);
+             return $this->successWithData($request,"successful",200);
 
         }catch(Error $err){
 
@@ -90,7 +90,7 @@ class UserRequestsController extends Controller
 
          //  Mail::to($user-> email)->queue(new requestNotifyMail($request-> request_number,$user-> name));
 
-            return $this->success(""," the request denied successfully ",200);
+            return $this->success(" the request denied successfully ",200);
             } 
 
             return $this->error("Unauthenticated!",401);
@@ -110,27 +110,14 @@ class UserRequestsController extends Controller
         }
     }
 
-    public function getDepartmentRequests($id){
+   
+
+    public function getUserRequests($id){
         try{
 
-            $department =Department::findOrFail($id); 
-            $requests = $department-> requests; 
+            $managerRequests = RequestsResource::collection(User::findOrFail($id)->requests->where("status",2)); 
 
-            return $this->success($requests,"successfull",200);
-
-        }catch(Error $err){
-            return response()-> json(["message"=> $err],400);
-        }
-
-    }
-
-
-    public function getUserRequestsByID($id){
-        try{
-
-            $managerRequests = User::findOrFail($id)->requests->where("status",2); 
-
-            return $this->success($managerRequests,"successfull",200);
+            return $this->successWithData($managerRequests,"successful",200);
 
         }catch(Error $err){
 
@@ -147,10 +134,9 @@ class UserRequestsController extends Controller
     public function createRequest($id,StoreRequests $request){
         try{
 
-            $user = User::findorFail($id);
- 
 
-               
+            $user = User::findOrFail($id);
+ 
                 $request_number = Str::random(2) . '-'.sprintf("%06d", mt_rand(1, 9999999));
 
                $file_id = $this->uploadFile($request,$request_number);
@@ -169,7 +155,7 @@ class UserRequestsController extends Controller
                   $date = date("l d F Y");
                 //  Mail::to($user-> email)->queue(new sendedRequestMail($newRequest-> request_number,$date));
 
-              return $this->success("","the request send successfully",200);
+              return $this->successWithData(["request number"=>$request_number],"the request send successfully",200);
                }
 
                 return $this->error("please check your file",400);

@@ -18,10 +18,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
-class ManagerContoller extends Controller
+class ManagerController extends Controller
 {
 
-   use HttpResponses;
+   
     
     public function requestAddEmployee(StoreUserRequest $request)
     {
@@ -30,18 +30,18 @@ class ManagerContoller extends Controller
         $department = Department::findOrFail($request-> department_id);
 
         $newEmployee = new UnapprovedUser();
-        $employeePassowrd = Str::random(10); 
+        $employeePassword = Str::random(10); 
 
         $newEmployee-> name = $request-> name ;
         $newEmployee-> email = $request-> email;
-        $newEmployee-> password = Crypt::encrypt($employeePassowrd);
+        $newEmployee-> password = Crypt::encrypt($employeePassword);
         $newEmployee-> type = 3; 
         $newEmployee-> phoneNumber = $request-> phoneNumber; 
         $newEmployee-> department_id = $department-> id;
         $newEmployee-> is_validate = false;
         $newEmployee-> save();  
 
-        return $this->success(" ","the request send to admin successfully",200);
+        return $this->success("the request send to admin successfully",200);
       
        } catch(Error $err){
 
@@ -73,7 +73,7 @@ class ManagerContoller extends Controller
  
              //    Mail::to($user-> email)->queue(new requestNotifyMail($request-> request_number,$user-> name));
  
-                return $this->success("","the requests approved successfully",200); 
+                return $this->success("the requests approved successfully",200); 
               } 
  
             }

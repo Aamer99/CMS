@@ -5,6 +5,8 @@ namespace App\Http\Controllers\V1;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Resources\RequestsResource;
+use App\Http\Resources\UserResource;
 use App\Mail\notifyMail;
 use App\Mail\requestNotifyMail;
 use App\Mail\welcomeMail;
@@ -21,10 +23,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Models\Request as UserRequest;
 
-class AdminContoller extends Controller
+class AdminController extends Controller
 {
-
-    use HttpResponses;
     
     
     public function getAllAddEmployeeRequests()
@@ -33,7 +33,7 @@ class AdminContoller extends Controller
 
            $users = UnapprovedUser::all();
 
-           return $this->success($users,"successful",200);
+           return $this->successWithData($users,"successful",200);
 
          }catch(Error $err){
             return $this->error($err,400);
@@ -46,10 +46,10 @@ class AdminContoller extends Controller
     {
         try{
 
-            $user = UnapprovedUser::findOrFail($id);
+            $user =new UserResource (UnapprovedUser::findOrFail($id));
 
         
-        return $this->success($user,"successful",200);
+        return $this->successWithData(new UserResource($user),"successful",200);
 
         } catch(ModelNotFoundException $err){
             return $this->error($err->getMessage(),404);
@@ -61,6 +61,13 @@ class AdminContoller extends Controller
     {
         try{ 
 
+            $request->validate([
+             'request_type'=> ['required', 'integer'],
+             'user_id'=> ['integer',"required_if:request_type,1"],
+             'request_id'=> ['integer',"required_if:request_type,2"],
+
+            ]);
+
             if($request-> request_type == 1){ 
 
                 $userRole = Role::find(3);  
@@ -71,14 +78,15 @@ class AdminContoller extends Controller
 
                  $newEmployee = $this->approveAddNewEmployee($employee);
 
-                return $this->success($newEmployee,"the request approved successfully",200);
+                return $this->successWithData($newEmployee,"the request approved successfully",200);
+
                 }else{
                     return $this->error("the user not exist",404);
                 }
 
             }else{
 
-            $request = UserRequest::findOrFail($request->request_id);
+            $request =UserRequest::findOrFail($request->request_id);
 
             $request->status = 2;
             $request-> save();
@@ -87,11 +95,12 @@ class AdminContoller extends Controller
           
             // Mail::to($user-> email)->queue(new requestNotifyMail($request-> request_number, $user-> name));
 
-            return $this->success($request,"the request approved successfully!",200);
+            return $this->successWithData(new RequestsResource($request),"the request approved successfully!",200);
         }
 
         }catch(Error $err){
             return response()-> json(['message'=> $err],400);
+
         } catch(ModelNotFoundException $e){
 
             return response()-> json(['message'=> $e->getMessage()],404);
@@ -106,17 +115,17 @@ class AdminContoller extends Controller
                 $newManager = new User();
                 $newManager-> name = $request-> name; 
                 $newManager-> email = $request-> email;
-                $managerPassowrd = Str::random(10);
-                $newManager-> password = Hash::make($managerPassowrd);
+                $managerPassword = Str::random(10);
+                $newManager-> password = Hash::make($managerPassword);
                 $newManager-> type = 1;
                 $newManager-> phoneNumber = $request-> phoneNumber; 
                 $newManager-> department_id = $department-> id;
                 $newManager-> is_validate = false;
                 $newManager-> save();  
     
-                Mail::to($newManager-> email)->queue(new welcomeMail($newManager-> email,$newManager-> name,$managerPassowrd,$newManager-> type));
+                // Mail::to($newManager-> email)->queue(new welcomeMail($newManager-> email,$newManager-> name,$managerPassword,$newManager-> type));
     
-                return $this->success(" ","the manager created successfully",200); 
+                return $this->success("the manager created successfully",200); 
 
         }catch(Error $err){
             return response()->json(["message"=> $err],400);

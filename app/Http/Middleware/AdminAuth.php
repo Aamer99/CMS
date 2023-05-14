@@ -17,8 +17,8 @@ class AdminAuth
     public function handle(Request $request, Closure $next): Response
     {
         
-            $currentUser = auth()->user();
-            if($currentUser-> type == 0){
+            $currentUserRole = auth()->user()->role->role_id;
+            if($currentUserRole === 1){
                 return $next($request);
             } 
 

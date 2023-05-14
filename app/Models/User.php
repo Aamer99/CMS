@@ -21,7 +21,7 @@ class User extends Authenticatable
         return $this->belongsTo(Department::class,"department_id");
     }
     public function role(){
-        return $this->belongsTo(Role::class,"type");
+        return $this->hasMany(usersRoles::class,"user_id");
     }
     public function otp(){
         return $this->hasOne(Otp::class,"user_id");
