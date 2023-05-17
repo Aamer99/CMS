@@ -19,15 +19,7 @@ class AuthController extends Controller
 
 
 
-    public function checkRole(){
-
-         $userRole = auth()->user()->role;
-         $role = Role::find(1)->users;
-
-         return response()->json(["user roles"=>$userRole,"roles"=>$role],200);
-
-    }
-  
+    
 
     public function login(Request $request)
     {

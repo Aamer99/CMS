@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DepartmentResource;
 use App\Http\Resources\RequestsResource;
+use App\Http\Resources\UserCollection;
 use App\Models\Department;
 use App\Traits\HttpResponses;
 use Error;
@@ -53,7 +54,10 @@ class DepartmentController extends Controller
     public function getAllDepartments(){
         try{ 
 
-            $departments = DepartmentResource::collection( Department::all());
+            $depa = Department::all();
+            dd(gettype($depa));
+            $departments = new UserCollection( Department::all());
+            
             return $this->successWithData($departments,"successful",200);
            
 

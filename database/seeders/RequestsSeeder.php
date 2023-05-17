@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\File;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Request as UserRequest;
@@ -15,7 +16,7 @@ class RequestsSeeder extends Seeder
     {
         
         $newRequest = new UserRequest(); 
-        $newRequest->file_id  = 0;
+      
         $newRequest->owner_id  = 2;
         $newRequest->department_id = 1;
         $newRequest->type  = 2;
@@ -23,9 +24,15 @@ class RequestsSeeder extends Seeder
         $newRequest->request_number  = 0;
         $newRequest->description  = "description";
         $newRequest->save();
+        $newRequest->file()->create([
+            'file_path'=> '/storage/app/file/request.pdf',
+        ]);
+
+
+
 
         $newRequest = new UserRequest(); 
-        $newRequest->file_id  = 0;
+        
         $newRequest->owner_id  = 2;
         $newRequest->department_id = 2;
         $newRequest->type  = 1;
@@ -33,5 +40,8 @@ class RequestsSeeder extends Seeder
         $newRequest->request_number  = 0;
         $newRequest->description  = "description";
         $newRequest->save();
+        $newFile = new File();
+        $newFile-> file_path = "/pAHT/AA/request/1.txt";
+        $newRequest->file()->save($newFile);
     }
 }

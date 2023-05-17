@@ -15,8 +15,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::post("v1/auth/login",[AuthController::class,"login"]);
 Route::post("v1/auth/reset-password/{user_id}",[UserController::class,'setPassword']);
-Route::post("v1/auth/otp",[AuthController::class,"checkRole"]); 
-Route::get("v1/checkRole",[AuthController::class,"checkRole"]);
+Route::post("v1/auth/otp",[AuthController::class,"verifyOtp"]); 
+Route::get("v1/getAllUsers",[UserController::class,"getAllUsers"]);
+
 
 
 
@@ -30,8 +31,8 @@ Route::prefix('/')->middleware("auth:api")->group(function(){
     Route::group(["prefix"=> "v1/admin","middleware"=>"App\Http\Middleware\AdminAuth"],function(){
         Route::post("/requests/approved",[AdminController::class,"approvedManagerRequests"]);
         Route::get("/requests/employees/{user_id}",[AdminController::class,"getAddEmployeeRequest"]);
-        Route::get('/requests/managers/{request_id}',[UserRequestsController::class,"getOneRequest"]);
         Route::get("requests/employees",[AdminController::class,"getAllAddEmployeeRequests"]);
+        Route::get('/requests/managers/{request_id}',[UserRequestsController::class,"getOneRequest"]);
         Route::post("/managers",[AdminController::class,"addNewManager"]);
         Route::post("/departments",[DepartmentController::class,"createNewDepartment"]);
         Route::get("/departments/{id}",[DepartmentController::class,"getOneDepartment"]);

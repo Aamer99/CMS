@@ -11,17 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('unapproved_users', function (Blueprint $table) {
+        Schema::connection("mysql2")->create('unapproved_users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
             $table->string("phoneNumber");
-            $table->string("type");
             $table->string("department_id");
             $table->boolean("is_validate");
             $table->timestamps();
         });
+      
     }
 
     /**
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('unapproved_users');
+        Schema::connection("mysql2")->dropIfExists('unapproved_users');
     }
 };

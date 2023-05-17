@@ -2,8 +2,9 @@
 
 use Illuminate\Support\Facades\Facade;
 
-return [
 
+return [
+    Jenssegers\Mongodb\MongodbServiceProvider::class,
     /*
     |--------------------------------------------------------------------------
     | Application Name

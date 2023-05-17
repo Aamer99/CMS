@@ -21,7 +21,7 @@ class User extends Authenticatable
         return $this->belongsTo(Department::class,"department_id");
     }
     public function role(){
-        return $this->hasMany(usersRoles::class,"user_id");
+        return $this->belongsToMany(Role::class);
     }
     public function otp(){
         return $this->hasOne(Otp::class,"user_id");
@@ -30,7 +30,7 @@ class User extends Authenticatable
         return $this->hasOne(OtpToken::class,"user_id");
     }
     public function file(){
-        return $this->has(File::class,"request_id");
+        return $this->morphOne(File::class,"fileable");
     }
     public function sender(){
         return $this->has(User::class,"sender_id");

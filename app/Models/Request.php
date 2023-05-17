@@ -16,5 +16,8 @@ class Request extends Model
     public function department(){
         return $this->belongsTo(Department::class,"department_id");
     }
+    public function file(){
+        return $this->morphOne(File::class,"fileable");
+    }
 
 }

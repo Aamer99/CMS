@@ -8,13 +8,15 @@ use App\Http\Requests\StoreUserRequest;
 use App\Mail\requestNotifyMail;
 use App\Models\Department;
 use App\Models\Request as UserRequest;
-use App\Models\UnapprovedUser;
+use App\Models\unapprovedUser;
 use App\Models\User;
 use App\Traits\HttpResponses;
 use Error;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -27,22 +29,35 @@ class ManagerController extends Controller
     {
        try{
 
-        $department = Department::findOrFail($request-> department_id);
+      $response = Http::post("http://127.0.0.1:3000/draftDB/unapproved-users/",[
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone_number' => $request->phoneNumber,
+            'department_id' => 3
+        ]); 
 
-        $newEmployee = new UnapprovedUser();
-        $employeePassword = Str::random(10); 
+        if($response->successful()){
 
-        $newEmployee-> name = $request-> name ;
-        $newEmployee-> email = $request-> email;
-        $newEmployee-> password = Crypt::encrypt($employeePassword);
-        $newEmployee-> type = 3; 
-        $newEmployee-> phoneNumber = $request-> phoneNumber; 
-        $newEmployee-> department_id = $department-> id;
-        $newEmployee-> is_validate = false;
-        $newEmployee-> save();  
+          $newRequest = new unapprovedUser();
+          $newRequest-> user_id = $response->json();
+          $newRequest-> manager_id = auth()->user()->id;
+          $newRequest->save();
+                
 
-        return $this->success("the request send to admin successfully",200);
-      
+        return $this->success(['message' => "the request send to admin successfully"],200);
+
+        }else{
+
+          $status = json_decode($response->body(),true);
+
+            if($status["error"]["code"]==11000){
+              return $this->error("the email address is already exist",400);
+            } 
+
+          
+          return $this->error($status,400);
+        }
+        
        } catch(Error $err){
 
             return $this->error($err,400);

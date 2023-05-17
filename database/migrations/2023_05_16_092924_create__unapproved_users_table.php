@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('files', function (Blueprint $table) {
+        Schema:: create('unapproved_users', function (Blueprint $table) {
             $table->id();
-            $table-> string("file_path");
-            $table-> string("request_id");
-            $table-> string("file_type");
+            $table-> string("user_id");
+            $table->string("manager_id");
+            $table->timestamps();
         });
     }
 
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('files');
+        Schema::dropIfExists('unapproved_users');
     }
 };

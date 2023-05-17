@@ -11,15 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('requests', function (Blueprint $table) {
+        Schema::create('files', function (Blueprint $table) {
             $table->id();
-            $table-> string("owner_id");
-            $table-> string("department_id");
-            $table-> string("type");
-            $table-> string("status");
-            $table-> string("request_number");
-            $table-> longText("description");
-            $table->softDeletes();
+            $table-> string("file_path");
+            $table-> morphs("fileable");
             $table->timestamps();
         });
     }
@@ -29,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('requests');
+        Schema::dropIfExists('files');
     }
 };

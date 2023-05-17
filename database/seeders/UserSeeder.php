@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Department;
+use App\Models\File;
 use App\Models\Request as UserRequest;
 use App\Models\Role;
 use App\Models\UnapprovedUser;
@@ -22,6 +23,9 @@ class UserSeeder extends Seeder
 
       
         
+        
+        
+        
         $newAdmin = new User();
         $newAdmin-> name = "admin";
         $newAdmin-> email = "admin@admin.com";
@@ -29,12 +33,18 @@ class UserSeeder extends Seeder
         $newAdmin-> phoneNumber = "055555555";
         $newAdmin-> department_id = 0;
         $newAdmin-> is_validate = 0;
-        $newAdmin-> save(); 
+         $newAdmin-> save(); 
+          $file = new File();
+        $file->file_path = '/storage/app/file/admin';
+       
+        $newAdmin->file()->save($file);
+       
+        $adminRole= Role::find(1);
+        
+        $newAdmin->role()->attach($adminRole);
 
-        $newRole = new usersRoles();
-        $newRole-> user_id = 1;
-        $newRole-> role_id = 1;
-        $newRole->save();
+    
+      
 
         $newUser = new User();
         $newUser-> name = "manager";
@@ -43,12 +53,15 @@ class UserSeeder extends Seeder
         $newUser-> phoneNumber = "055555555";
         $newUser-> department_id = 1;
         $newUser-> is_validate = 0;
-        $newUser-> save(); 
+         $newUser-> save();
+        $newUser-> file()->create([
+            'file_path'=> '/storage/app/file/manager1',
+           
+        ]);
+       
+        $managerRole= Role::find(2);
+        $newUser->role()->attach($managerRole);
 
-        $newRole = new usersRoles();
-        $newRole-> user_id = 2;
-        $newRole-> role_id = 2;
-        $newRole->save();
 
         $newUser = new User();
         $newUser-> name = "manager";
@@ -57,12 +70,15 @@ class UserSeeder extends Seeder
         $newUser-> phoneNumber = "055555555";
         $newUser-> department_id = 2;
         $newUser-> is_validate = 0;
-        $newUser-> save(); 
+         $newUser-> save();
+        $newUser-> file()->create([
+            'file_path'=> '/storage/app/file/manager2',
+        ]);
+        
+        $managerRole= Role::find(2);
+        $newUser-> role()->attach($managerRole);
+       
 
-        $newRole = new usersRoles();
-        $newRole-> user_id = 3;
-        $newRole-> role_id = 2;
-        $newRole->save();
       
 
         $newEmployee = new User();
@@ -72,12 +88,16 @@ class UserSeeder extends Seeder
         $newEmployee-> phoneNumber = "055555555";
         $newEmployee-> department_id = 1;
         $newEmployee-> is_validate = 0;
-        $newEmployee-> save();  
+        $newEmployee-> save(); 
+         $file = new File();
+        $file->file_path = '/storage/app/file/admin';
 
-        $newRole = new usersRoles();
-        $newRole-> user_id = 4;
-        $newRole-> role_id = 3;
-        $newRole->save();
+       $newEmployee->file()->save($file);
+        $employeeRole= Role::find(3);
+        $newEmployee->role()->sync($employeeRole); 
+         
+
+       
 
         $newEmployee = new User();
         $newEmployee-> name = "employee 2";
@@ -86,19 +106,13 @@ class UserSeeder extends Seeder
         $newEmployee-> phoneNumber = "055555555";
         $newEmployee-> department_id = 2;
         $newEmployee-> is_validate = 0;
-        $newEmployee-> save();  
-
-        $newRole = new usersRoles();
-        $newRole-> user_id = 5;
-        $newRole-> role_id = 3;
-        $newRole->save();
-
-     
-
-
-
-
-
-
+        $newEmployee->save();
+        $file = new File();
+        $file->file_path = '/storage/app/file/employee2';
+       $newEmployee->file()->save($file);
+       
+        $employeeRole= Role::find(3);
+        $newEmployee->role()->attach($employeeRole); 
+       
     }
 }

@@ -17,8 +17,8 @@ class ManagerAuth
     public function handle(Request $request, Closure $next): Response
     {
         
-            $currentUserRole = auth()->user()->role;
-            if($currentUserRole=== 2){
+            $currentUserRole = auth()->user()->role[0];
+            if($currentUserRole-> id === 1){
                 return $next($request);
             } else {
                 return response()->json(["message"=> " you don't have access"],403);

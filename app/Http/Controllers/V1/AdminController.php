@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\V1;
 
+use App\Classes\CustomUser;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
+
 use App\Http\Resources\RequestsResource;
+use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Mail\notifyMail;
 use App\Mail\requestNotifyMail;
@@ -22,6 +25,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Models\Request as UserRequest;
+use App\Models\unapprovedUser as UnapprovedUserModel;
+
+use Exception;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Http;
 
 class AdminController extends Controller
 {
@@ -31,11 +39,25 @@ class AdminController extends Controller
     {
          try{ 
 
-           $users = UnapprovedUser::all();
+          $response =  Http::get("http://127.0.0.1:3000/draftDB/unapproved-users");
 
-           return $this->successWithData($users,"successful",200);
+          if($response->successful()){
 
-         }catch(Error $err){
+           $users = $response->body();
+           $usersArr = json_decode($users);
+     
+
+
+        $usersCollect =  collect($usersArr); 
+        // $customsData = new CustomUser();                         //seconde way but need to some work to make
+        // $customizeUsers = $customsData->toArray($usersCollect);
+
+            return $this->successWithData(new UserCollection($usersCollect),"successful",200);
+          } else {
+            return $this-> error("please try again later",400);
+          }
+
+         }catch(Exception $err){
             return $this->error($err,400);
          }
     }
@@ -45,11 +67,24 @@ class AdminController extends Controller
     public function getAddEmployeeRequest($id)
     {
         try{
+ 
+          
+            $response =  Http::get("http://127.0.0.1:3000/draftDB/unapproved-users/{$id}");
 
-            $user =new UserResource (UnapprovedUser::findOrFail($id));
+            
 
-        
-        return $this->successWithData(new UserResource($user),"successful",200);
+            if($response->successful()){
+
+                $userInfo = json_decode($response->body(),true);
+                $userInfoCollect = collect($userInfo);
+                //   Arr::forget($userInfo,["__v","_id"]);
+                return $this->successWithData(new UserCollection($userInfo),"successful",200);
+            } else {
+                return $this-> error("please try again later",400);
+            }
+
+        }catch(Error $err){
+            return $this->error($err,400);
 
         } catch(ModelNotFoundException $err){
             return $this->error($err->getMessage(),404);
@@ -63,26 +98,57 @@ class AdminController extends Controller
 
             $request->validate([
              'request_type'=> ['required', 'integer'],
-             'user_id'=> ['integer',"required_if:request_type,1"],
+             'user_id'=> ['string',"required_if:request_type,1"],
              'request_id'=> ['integer',"required_if:request_type,2"],
 
             ]);
 
             if($request-> request_type == 1){ 
 
-                $userRole = Role::find(3);  
+             $userData = Http::post("http://127.0.0.1:3000/draftDB/unapproved-users/approved/{$request->user_id}"); 
 
-                $employee = $userRole->unapprovedUsers->find($request-> user_id);
 
-                if($employee){
 
-                 $newEmployee = $this->approveAddNewEmployee($employee);
+             if($userData->successful()){
 
-                return $this->successWithData($newEmployee,"the request approved successfully",200);
+                $employeePassword = Str::random(10);
+                $employeeDataArr = json_decode($userData->body(),true);
+                $requestInfo = UnapprovedUserModel::where('user_id',$request->user_id)->get();
 
-                }else{
-                    return $this->error("the user not exist",404);
+
+                
+
+                if($requestInfo){
+
+                    $newEmployee = new User();
+                    $newEmployee->name = $employeeDataArr['name'];
+                    $newEmployee->email = $employeeDataArr['email'];
+                    $newEmployee->password = Hash::make($employeePassword);
+                    $newEmployee->phoneNumber = $employeeDataArr["phone_number"];
+                    $newEmployee-> department_id = $employeeDataArr["department_id"];
+                    $newEmployee-> is_validate = false;
+                    
+                    $newEmployee-> save();
+                    
+
+                   UnapprovedUser::destroy($requestInfo[0]["id"]);
+    
+                    return $this->successWithData([$newEmployee],"successful",200);
+                }else {
+                    return $this->error("user not found",404);
                 }
+            
+             } else{
+                switch ($userData->status()) {
+                    case 404:
+                        return $this->error("user not found",404);
+                    case 400:
+                        return $this->error("please try again later",400);
+                  default:
+                return $this->error($userData->status(),400);
+                       
+             }
+            }
 
             }else{
 

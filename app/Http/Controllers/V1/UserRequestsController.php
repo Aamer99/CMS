@@ -139,20 +139,21 @@ class UserRequestsController extends Controller
  
                 $request_number = Str::random(2) . '-'.sprintf("%06d", mt_rand(1, 9999999));
 
-               $file_id = $this->uploadFile($request,$request_number);
+               $file = $this->uploadFile($request,$request_number);
 
-               if($file_id){
+               if($file){
 
                 $newRequest = new UserRequest(); 
-                $newRequest-> file_id = $file_id;
                 $newRequest-> owner_id = $user-> id; 
-                $newRequest-> department_id = $user-> department_id;
-                $newRequest-> type = $user-> type; 
+                $newRequest-> department_id = $user-> department->id;
+                $newRequest-> type = $user-> role[0]->id; 
                 $newRequest-> status = 0;
                 $newRequest-> request_number = $request_number;
                 $newRequest-> description = $request-> description; 
                 $newRequest-> save(); 
-                  $date = date("l d F Y");
+                
+               $newRequest->file()->save($file);
+                  
                 //  Mail::to($user-> email)->queue(new sendedRequestMail($newRequest-> request_number,$date));
 
               return $this->successWithData(["request number"=>$request_number],"the request send successfully",200);
@@ -171,19 +172,16 @@ class UserRequestsController extends Controller
         }
     }
 
-    public function uploadFile(Request $request,string $request_id){
+    public function uploadFile(Request $request){
         try{
 
             if($request-> hasFile("requestFile")){
 
                 $filePath = $request->file('requestFile')->store('requestsFile','public'); 
-                $newFile = new File();
-                $newFile-> file_path = $filePath;
-                $newFile-> request_id = $request_id;
-                $newFile-> file_type = $request->file("requestFile")->getMimeType();  
-                $newFile-> save();
-
-                return $newFile-> id; 
+                $file = new File();
+                $file->file_path = $filePath;
+        
+                return $file; 
                 
             }else{
                 return null;

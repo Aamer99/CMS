@@ -21,6 +21,20 @@ class UserController extends Controller
    use HttpResponses;
 
 
+
+   public function getAllUsers(){
+
+    try{
+        $users = User::all();
+
+        return $this->successWithData([
+            'users' => $users
+        ],"successful",200);
+    }catch(Error $e){
+         return $this->error($e->getMessage(),400);
+    }
+   }
+
     public function editProfile($id,EditProfileRequest $request)
     {
         try{
