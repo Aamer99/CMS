@@ -19,9 +19,9 @@ class UserCollection extends ResourceCollection
          
                 $this->collection->map(function($data,$index) {
                     return [
-                        'id'         => $index,
-                        'name'       => $data->name,
-                        'email' => $data->email,
+                        'id'=> $index,
+                        'name'=> $data->name,
+                        'email'=> $data->email,
                         'phone_number' => $data->phone_number,
                         'department' => $data->department_id
                         

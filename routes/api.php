@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post("v1/auth/login",[AuthController::class,"login"]);
-Route::post("v1/auth/reset-password/{user_id}",[UserController::class,'setPassword']);
+Route::post("v1/auth/reset-password",[AuthController::class,'setPassword']);
 Route::post("v1/auth/otp",[AuthController::class,"verifyOtp"]); 
+
 Route::get("v1/getAllUsers",[UserController::class,"getAllUsers"]);
 
 
@@ -25,6 +26,7 @@ Route::prefix('/')->middleware("auth:api")->group(function(){
 
 
     Route::post("v1/auth/logout",[AuthController::class,"logout"]);
+    
 
     //admin 
 
@@ -55,10 +57,10 @@ Route::prefix('/')->middleware("auth:api")->group(function(){
     Route::group(["prefix"=> "v1/users/"],function(){
 
         Route::get("requests/{id}",[UserRequestsController::class,"getOneRequest"]);
-        Route::get("/requests/{user_id}",[UserRequestsController::class,"getUserRequests"]);
-        Route::delete("requests/deny/{request_id}",[UserRequestsController::class,"denyRequest"]);
-        Route::post("requests/{user_id}",[UserRequestsController::class,"createRequest"]);
-        Route::put("/profile/{user_id}",[UserController::class,"editProfile"]);
+        Route::get("my-requests/{user_id}",[UserRequestsController::class,"getUserRequests"]);
+        Route::delete("requests/deny/{id}",[UserRequestsController::class,"denyRequest"]);
+        Route::post("requests",[UserRequestsController::class,"createRequest"]);
+        Route::put("/edit-profile",[UserController::class,"editProfile"]);
         Route::post("/send-message",[UserController::class,"notifyUser"]);
         
     });

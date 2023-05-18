@@ -24,8 +24,9 @@ class EditProfileRequest extends FormRequest
         return [
             'name'=> ["required_if:name,==,null",'min:3'],
             'email'=> ['required_if:email,==,null','email','lowercase','unique:users'],
-            'password' => ['required_if:password,==,null','min:6'],
+            'password' => ['required_if:password,==,null','min:6','confirmed'],
             'phoneNumber' => ['required_if:phoneNumber,==,null'],
+            'current_password'=>['required_if:password,==,null','min:6'],
         ];
     }
 

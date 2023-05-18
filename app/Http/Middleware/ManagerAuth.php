@@ -18,7 +18,7 @@ class ManagerAuth
     {
         
             $currentUserRole = auth()->user()->role[0];
-            if($currentUserRole-> id === 1){
+            if($currentUserRole-> id === 2){
                 return $next($request);
             } else {
                 return response()->json(["message"=> " you don't have access"],403);
