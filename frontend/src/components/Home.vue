@@ -1,129 +1,182 @@
-<!-- <template>
-    <div class="grid grid-flow-col gap-1 h-scree w-screen bg-slate-100">
-        <div class="bg-gray-50 col-span-1" style="width: 250px">
-            <div
-                style="border-radius: 0px 0px 100px 0px"
-                class="top-0 left-0 h-screen m-0 flex flex-col bg-blue-900 text-white text-center"
-            >
-                <img
-                    src="../assets/images/CMSlogoWhite.png"
-                    width="250"
-                    height="250"
-                />
-
-                <div
-                    class="h-screen"
-                    style="
-                        display: flex;
-                        justify-content: space-between;
-                        flex-direction: column;
-                        height: 70%;
-                    "
-                >
-                    <div style="width: 100px; margin: 10px">
-                        <div v-for="menu in menu" style="padding: 30px">
-                            <RouterLink :to="menu.destination">{{
-                                menu.title
-                            }}</RouterLink>
-                        </div>
-                    </div>
-
-                    <div style="width: 100%">
-                        <div class="grid grid-flow-row gap-2">
-                            <div>
-                                <img
-                                    class="mx-auto h-10 w-10 rounded-full"
-                                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                                    alt=""
-                                />
-                            </div>
-                            <div>
-                                <p class="font-semibold text-gray-900">
-                                    Judith Black
-                                </p>
-                                <p class="text-gray-600">CEO of Workcation</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-span-12">
-            <RouterView />
-        </div>
-    </div>
-</template> -->
-
 <template>
-    <v-card>
-      <v-layout>
-        <v-navigation-drawer
-        expand-on-hover
-        rail
-      >
-    
-      <v-list>
-          <v-list-item> 
-            <img
-                src="../assets/images/CMSlogo.png"
-                width="200"
-                height="200"
-                />
-        </v-list-item>
+  <v-card>
+    <v-layout>
+      <!-- the Side Bar  -->
+      <v-navigation-drawer style="background-color: #DBDFEA;"  v-model="drawer" :rail="rail"  :permanent="!showNavbar" @click=" rail = false; checkWidth()"  >
+        <!-- The Logo -->
+        <v-list>
+          <v-list-item>
+            <v-container>
+              <v-row no-gutters class="justify-center align-center"> 
+               
+                <v-col >
+                  <img class="mx-auto h-150 w-auto" src="../assets/images/CMSlogo.png" alt="Your Company" />
+                </v-col>
+                <v-col cols="3" v-show="!rail"  >
+                  <v-btn variant="text" icon="mdi-chevron-left" @click.stop="rail = !rail"></v-btn>
+                </v-col>
+              
+              </v-row>                                                                                                                                                                                          
+            </v-container>
+          </v-list-item>
         </v-list>
-  
-          <v-divider></v-divider>
-  
-          <v-list
-            :lines="false"
-            density="compact"
-            nav
-          >
-            <v-list-item
-              v-for="(menu, i) in menu"
-              :key="i"
-              :value="menu"
-              active-color="primary"
-            >
-              <template v-slot:prepend>
-                <!-- <v-icon :icon="menu.icon"></v-icon> -->
-              </template>
-            <RouterLink :to="menu.destination">{{menu.title}}</RouterLink>
-         
-        
-            
-            
-          
-            </v-list-item>
-          </v-list>
-        </v-navigation-drawer>
-        <v-main style="height: 100vh">   <RouterView /></v-main>
-      </v-layout>
-    </v-card>
-  </template>
 
+        <v-divider></v-divider>
+            <!-- The Nav List   -->
+
+        <v-list density="compact" nav v-for="(item, i) in items">
+          <RouterLink :to="item.destination">
+            <v-list-item :key="i" :value="item" :active="item.value == currentItem"
+              @click="() => { currentItem = item.value; }" rounded="xl">
+
+              <template v-slot:prepend>
+                <img class="h-6 w-6 p-1" :src="item.src" :alt="item.alt" />
+            
+  
+              </template>
+              <v-list-item-title v-text="item.title"></v-list-item-title>
+            </v-list-item>
+          </RouterLink>
+        </v-list>
+            <!-- The Account  -->
+        <template v-slot:append>
+          <RouterLink to="/admin/profile">
+            <v-list-item nav lines="two" prepend-avatar="https://randomuser.me/api/portraits/women/81.jpg"
+              title="Jane Smith" subtitle="Logged in"></v-list-item>
+          </RouterLink>
+        </template>
+      </v-navigation-drawer>
+
+      <!-- the Nav Bar  -->
+
+      <v-app-bar  color="primary" :prominent="showNavbar" v-show="showNavbar" v-if="showNavbar" >
+ 
+
+          <v-app-bar-nav-icon variant="text" @click.stop="drawerNavbar = !drawerNavbar; checkWidth()" />
+  
+          <v-toolbar-title>CMS</v-toolbar-title>
+  
+          <v-spacer/>
+  
+          <!-- The Avatar  -->
+          <template v-slot:append>
+          <RouterLink :to="{ name: 'Profile',params:{type:0}}">
+            <v-list-item nav lines="two" prepend-avatar="https://randomuser.me/api/portraits/women/81.jpg"
+              title="Jane Smith" subtitle="admin@admin"></v-list-item>
+          </RouterLink>
+        </template>
+        </v-app-bar>
+        <!-- the Nav List  for the Nav bar  -->
+
+        <v-navigation-drawer v-model="drawerNavbar" location="top" v-if="showNavbar" >
+          <v-list
+          v-for="(item, i) in items"
+          > 
+          <RouterLink :to="item.destination">
+            <v-list-item :key="i" :value="item"  :onclick="(e)=>{currentItem = item.value; checkWidth()} ">
+            <v-list-item-title v-text="item.title"></v-list-item-title>
+            </v-list-item>
+          </RouterLink>
+        
+        </v-list>
+        </v-navigation-drawer>
+
+      <v-main > 
+        <RouterView />
+      </v-main>
+    </v-layout>
+  </v-card>
+</template>
 <script>
-import { RouterLink, RouterView } from "vue-router";
+import { RouterLink, RouterView,useRoute } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import Departments from "../views/Admin/Departments.vue";
+import { handleError, watch } from "vue";
+import departmentIcon from "../assets/icons/departments.png";
+import homeIcon from "../assets/icons/home.png";
+import requestColor from "../assets/icons/requests.png";
+import managersIcon from "../assets/icons/managers.png";
+import sendMessageIcon from "../assets/icons/message.png";
+
+const route = useRoute();
+
+console.log(screen.width < 800);
+console.log(window.innerWidth)
 
 export default {
-    props: ["menu"],
-    components:{
-        Departments
+ 
+  props: ["menu"],
+  components: {
+    Departments
 
-    },
-    data () {
-      return {
-        drawer: true,
-        items: [
-          { title: 'Home', icon: 'mdi-home-city' },
-          { title: 'My Account', icon: 'mdi-account' },
-          { title: 'Users', icon: 'mdi-account-group-outline' },
-        ],
-        rail: true,
+  },
+
+  data: () => ({
+    type:0,
+    currentItem: 0,
+    currentWidth: window.innerWidth,
+    drawerNavbar:false,
+    showNavbar: window.innerWidth < 800 ,
+    rail: window.innerWidth > 800 ,
+    drawer: window.innerWidth > 800,
+    items: [
+      {
+        title: "Home",
+        value: 0,
+        src: homeIcon,
+        alt:"Home Icon",
+        destination: '/admin'
+      },
+      {
+        title: 'Department',
+        value: 1,
+        src: departmentIcon,
+        alt:"department icon",
+        destination: '/admin/department'
+      },
+      {
+        title: 'Request',
+        value: 2,
+        src: requestColor,
+        alt:"requests icon",
+        destination: '/admin/requests'
+      },
+      {
+        title: 'Manager',
+        value: 3,
+        src: managersIcon,
+        alt:"people icon",
+        destination: '/admin/managers'
+      },
+      {
+        title: 'Send Message',
+        value:4,
+        src: sendMessageIcon,
+        alt:"send message icon",
+        destination: '/admin/send-message'
       }
+
+    ],
+   
+
+  }),
+  methods:{
+    checkWidth(){
+    this.currentWidth = window.innerWidth
+  }
+  },
+
+  watch:{
+    currentWidth(){
+    if(this.currentWidth < 800){
+      this.showNavbar = true;
+    } else {
+      this.showNavbar = false;
+      this.drawerNavbar = false;
+    }
     },
-};
+   
+  }
+  
+}
 </script>

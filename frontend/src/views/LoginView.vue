@@ -124,9 +124,15 @@ export default {
 
     <!-- Verify OTP  -->
 
+    <v-dialog
+      v-model="authenticated"
+      persistent
+      width="auto"
+    >
+<!-- 
     <div
         v-show="authenticated"
-        className="bg-gray-500 bg-opacity-70 absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center">
+        className="bg-gray-500 bg-opacity-70 absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center"> -->
         <div class="bg-white py-10 sm:py-15 rounded-md" style="padding: 5px">
             <div class="grid grid-flow-col gap-2">
                 <div class="col-span-6">
@@ -176,5 +182,5 @@ export default {
             </div>
             </div>
         </div>
-    </div>
+    </v-dialog>
 </template>

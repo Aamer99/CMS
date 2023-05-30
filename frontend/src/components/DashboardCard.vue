@@ -1,11 +1,4 @@
-<script>
 
-export default{
- name:"DashboardCard",
-props:["cardTitle","dataArray"]
-}
-
-</script>
     <template>
   <div
            class="p-6 bg-white h-full border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
@@ -91,3 +84,11 @@ props:["cardTitle","dataArray"]
            </div>
        </div>
 </template>
+<script>
+
+export default{
+ name:"DashboardCard",
+props:["cardTitle","dataArray"]
+}
+
+</script>

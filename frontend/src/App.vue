@@ -4,7 +4,7 @@ import HelloWorld from './components/HelloWorld.vue'
 </script>
 
 <template>
-  <RouterView />
+  <RouterView  id="App"/>
 </template>
 
 <style scoped>

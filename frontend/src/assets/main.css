@@ -1,35 +1,87 @@
-/* @import './base.css';
+@import "./base.css";
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-
-  font-weight: normal;
+#App {
+    background: #C1D0B5;
+    
+    min-height: 100vh;
 }
-
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-}
-
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
-}
-
-@media (min-width: 1024px) {
-  body {
+.SearchBarContainer {
+    height: 80px;
     display: flex;
-    place-items: center;
-  }
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+    padding: 20px;
+    background: #DBDFEA;
+    border-radius: 40px;
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
+    margin: 15px;
+}
+
+#zoom{
+    transition: all .5s;
+    -moz-transition: all .5s;
+    -webkit-transition: all .5s;
+    -o-transition: all .5s;
+    -ms-transition: all .5s;
   }
-} */
+  #zoom:hover{
+    transform : scale(1.1);
+   -moz-transform : scale(1.1);
+   -webkit-transform : scale(1.1);
+   -o-transform : scale(1.1);
+   -ms-transform : scale(1.1);
+   cursor:pointer;
+  }
+  
+.SearchBar {
+    height: 50px;
+    display: flex;
+    cursor: pointer;
+    padding: 10px 15px;
+    background: rgb(255, 255, 255, 1);
+    border-radius: 35px;
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.SearchBtn {
+    position: absolute;
+    margin: 20px;
+    right: 0;
+}
+
+.SearchBar input {
+    background: transparent;
+
+    border: 0;
+    outline: none;
+}
+
+@media only screen and (max-width: 600px) {
+    .SearchBar:hover input {
+        width: 200px;
+    }
+}
+@media only screen and (max-width: 600px) {
+    .SearchBarContainer {
+        padding: 5px;
+    }
+    .SearchBar:hover input {
+        width: 200px;
+    }
+    .SearchBar input {
+        width: 0;
+        outline: none;
+        border: none;
+        font-weight: 500;
+        transition: 0.8s;
+        background: transparent;
+    }
+}
+@media only screen and (max-width: 400px) {
+    .SearchBtn {
+        margin: 10px;
+    }
+}
+
+

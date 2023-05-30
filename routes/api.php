@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Route;
 Route::post("v1/auth/login",[AuthController::class,"login"]);
 Route::post("v1/auth/reset-password",[AuthController::class,'setPassword']);
 Route::post("v1/auth/otp",[AuthController::class,"verifyOtp"]); 
-
 Route::get("v1/getAllUsers",[UserController::class,"getAllUsers"]);
 
 
