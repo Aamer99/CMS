@@ -4,8 +4,9 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import './style.css'
-
+// import store from "./store"
 import ApexCharts from 'apexcharts'
+import {createStore} from "vuex"
 
 //import './plugins/bootstrap-vue'
 // Vuetify
@@ -17,7 +18,13 @@ import "@mdi/font/css/materialdesignicons.css";
 
 // 
 
-
+const store = createStore({
+  state(){
+    return{
+    counter : 0
+ }
+  }
+})
 
 
 const vuetify = createVuetify({
@@ -26,7 +33,7 @@ const vuetify = createVuetify({
 })
 
 const app = createApp(App)
-
+app.use(store);
 app.use(router)
 app.use(vuetify)
 

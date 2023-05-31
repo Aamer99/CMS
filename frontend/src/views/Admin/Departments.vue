@@ -1,62 +1,9 @@
 <template>
-    <!-- <v-app-bar app color="white" elevate-on-scroll style="padding: 10px">
-        <v-container>
-            <v-row no-gutters>
-                <v-col md="4" sm="6">
-                    <v-text-field
-                        clearable
-                        label="Search"
-                        variant="underlined"
-                    ></v-text-field>
-                </v-col>
-                <v-col cols="1">
-                    <v-btn
-                        icon
-                        color="success"
-                        class="mt-4"
-                        block
-                        @click="validate"
-                    >
-                        <v-icodialogn> mdi-magnify </v-icodialogn>
-                    </v-btn>
-                </v-col>
-            </v-row>
-        </v-container>
-        <v-spacer></v-spacer>
-        <v-btn :onclick="() => (dialog = true)"> New Department</v-btn>
-    </v-app-bar> -->
+   
     <SearchBar type="Department" @open-dialog="showDialog"/>
     <v-container>
         <v-row>
-            <!-- <v-col md="auto" sm="12">
-                <Card  type="Departments"/>
-            </v-col>
-
-            <v-col md="auto" sm="12">
-               <Card  type="Departments"/>
-            </v-col>
-            <v-col md="auto" sm="12">
-                 <Card  type="Departments"/>
-            </v-col>
-            <v-col md="auto" sm="12">
-                <Card  type="Departments"/>
-            </v-col>
-            <v-col md="auto" sm="12">
-                 <Card  type="Departments"/>
-            </v-col>
-            <v-col md="auto" sm="12">
-                <Card  type="Departments"/>
-            </v-col>
-            <v-col md="auto" sm="12">
-                 <Card  type="Departments"/>
-            </v-col>
-            <v-col md="auto" sm="12">
-                 <Card  type="Departments"/>
-            </v-col>
-            <v-col md="auto" sm="12">
-               <Card  type="Departments"/>
-            </v-col>  -->
-
+        
             <v-dialog v-model="dialog" width="500">
                 <v-card style="padding: 5px">
                     <v-card-title class="headline"
@@ -114,7 +61,8 @@
 <script>
 import Card from "../../components/Card.vue";
 import SearchBar from "../../components/SearchBar.vue";
-
+import departmentAPI from "../../api/department.js";
+import department from "../../api/department.js";
 export default {
     components: {
         Card,
@@ -123,6 +71,7 @@ export default {
     data() {
         return {
             dialog: false,
+            departmentList:[],
         };
     },
     methods: {
@@ -130,5 +79,17 @@ export default {
             this.dialog = !this.dialog;
         },
     },
+    mounted(){
+    //     department.all()
+    //     .try((res)=>{
+    //         console.log(res);
+    //     })
+    //     .catch((err)=>{
+    //         console.log("hi")
+    //         console.log(err);
+    //     })
+    console.log("hi")
+     }
+    
 };
 </script>

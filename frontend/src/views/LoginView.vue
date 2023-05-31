@@ -1,59 +1,4 @@
-<script>
-import { RouterLink, useLink } from "vue-router";
-import { ref } from "vue";
 
-export default {
-    data() {
-        return {
-            authenticated: true,
-            otp: [],
-            formValues: {
-                email: "",
-                password: "",
-            },
-        };
-    },
-    methods: {
-        login() {
-            this.authenticated = true;
-            // this.$router.push('/home');
-        },
-
-        handelEnter(event, i) {
-            const matches = event.key.match(/^[0-9]$/);
-
-            if (matches) {
-                switch (i) {
-                    case 1:
-                        this.$refs.input2[0].focus();
-                        break;
-                    case 2:
-                        this.$refs.input3[0].focus();
-                        break;
-                    case 3:
-                        this.$refs.input4[0].focus();
-                        break;
-                    case 4:
-                        this.$refs.input5[0].focus();
-                        break;
-                    case 5:
-                        this.$refs.input6[0].focus();
-                        break;
-                    case 6:
-                        if (this.otp.length == 7) {
-                            this.$refs.verifyBtn.focus();
-                        }
-                        break;
-                }
-            }
-        },
-
-        verifyOTP() {
-            console.log(this.otp);
-        },
-    },
-};
-</script>
 <template>
     <!--
       This example requires updating your template:
@@ -88,7 +33,8 @@ export default {
                             type="email"
                             v-model="formValues.email"
                             required
-                            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            
+                         :class=" isError ? ' w-full rounded-md  py-1.5 shadow-sm bg-red-50 border border-red-500 text-red-900 ' : ' w-full rounded-md border-0 py-1.5 shadow-sm bg-gray-100'"
                         />
                     </div>
                 </div>
@@ -107,8 +53,11 @@ export default {
                             type="password"
                             v-model="formValues.password"
                             required
-                            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-                    </div>
+                            :class=" isError ? ' w-full rounded-md  py-1.5 shadow-sm bg-red-50 border border-red-500 text-red-900 ' : ' w-full rounded-md border-0 py-1.5 shadow-sm bg-gray-100'"
+/>
+
+<p class="mt-2 text-sm text-red-600 dark:text-red-500" v-show="isError"> Invalided Email or Password, Place try again</p>
+                 </div>
                 </div>
 
                 <div>
@@ -125,7 +74,7 @@ export default {
     <!-- Verify OTP  -->
 
     <v-dialog
-      v-model="authenticated"
+      v-model="openOtp"
       persistent
       width="auto"
     >
@@ -139,7 +88,7 @@ export default {
                     <h1 style="padding: 5px" class="font-mono">Verification Code</h1>
                 </div>
                 <div class="col-span-0.4">
-                    <button type="button" style="float: right;padding: 3px;" :onClick="()=>{this.authenticated = false}">X</button>
+                    <button type="button" style="float: right;padding: 3px;" :onClick="()=>{this.openOtp = false}">X</button>
                 </div>
             </div>
             <p class="mt-3 text-sm text-gray-500" style="padding: 10px">
@@ -160,7 +109,7 @@ export default {
                         @keyup="(e) => handelEnter(e, i)"
                         v-model="otp[i]"
                         :key="i"
-                        class="block rounded-md py-1.5 text-gray-900 shadow-sm ring-1 ring-inset"
+                        :class="isOtpWrong ?  'block rounded-md py-1.5 shadow-sm ring-1 ring-inset bg-red-50 border border-red-500 text-red-900 ':'block rounded-md py-1.5 shadow-sm ring-1 ring-inset'"
                         style="width: 40px; text-align: center"
                     />
                 </div>
@@ -184,3 +133,93 @@ export default {
         </div>
     </v-dialog>
 </template>
+<script>
+import { RouterLink, useLink } from "vue-router";
+import { ref } from "vue";
+import auth from "../api/auth";
+
+export default {
+    data() {
+        return {
+            openOtp: false,
+            otp: [],
+            formValues: {
+                email: "",
+                password: "",    
+            },
+            token:"",
+            otp_expired_date:"",
+            isError: false,
+            isOtpWrong: false,
+        };
+    },
+    methods: {
+       async login() {
+            
+        const loginData = {"email":this.formValues.email, "password":this.formValues.password}
+        await auth.login(loginData)
+            // auth.login(loginData)
+             .then((res)=>{
+                console.log(res.data);
+                this.openOtp = true;
+                this.token = res.data.token;
+                this.otp_expired_date = res.data.otp_expired_date;
+             })
+             .catch((err)=>{
+                console.log(err.response.data.message);
+                this.isError = true
+             });
+        },
+
+        handelEnter(event, i) {
+            const matches = event.key.match(/^[0-9]$/);
+
+            if (matches) {
+                switch (i) {
+                    case 1:
+                        this.$refs.input2[0].focus();
+                        break;
+                    case 2:
+                        this.$refs.input3[0].focus();
+                        break;
+                    case 3:
+                        this.$refs.input4[0].focus();
+                        break;
+                    case 4:
+                        this.$refs.input5[0].focus();
+                        break;
+                    case 5:
+                        this.$refs.input6[0].focus();
+                        break;
+                    case 6:
+                        if (this.otp.length == 7) {
+                            this.$refs.verifyBtn.focus();
+                        }
+                        break;
+                }
+            }
+        },
+
+       async verifyOTP() {
+        
+        var otp = "";
+        this.otp.map((item)=>{
+            otp += item.toString();
+        })
+    
+
+         const data = {"otp": otp,"token":this.token};
+
+            await auth.verifyOTP(data)
+            .then((res)=>{
+               console.log(res);
+               window.location = "/admin";
+            })
+            .catch((err)=>{
+                console.log(err);
+                this.isOtpWrong = true
+            })
+        },
+    },
+};
+</script>
