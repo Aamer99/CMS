@@ -1,16 +1,18 @@
 <?php
 
 namespace App\Http\Controllers\V1;
+use App\Http\Controllers\Controller;
 
 use App\Classes\CustomUser;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+
 use App\Http\Requests\ApprovedManagerRequests;
 use App\Http\Requests\StoreUserRequest;
 
 use App\Http\Resources\RequestsResource;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
+use App\Http\Services\AdminService;
 use App\Mail\notifyMail;
 use App\Mail\requestNotifyMail;
 use App\Mail\welcomeMail;
@@ -26,8 +28,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Models\Request as UserRequest;
+use App\Models\RoleUser;
 use App\Models\unapprovedUser as UnapprovedUserModel;
-
+use App\Models\usersRoles;
 use Exception;
 use Faker\Extension\Extension;
 use Illuminate\Support\Arr;
@@ -46,13 +49,13 @@ class AdminController extends Controller
             if ($response->successful()) {
 
                 $users = $response->body();
+
                 $usersArr = json_decode($users);
 
                 $usersCollect =  collect($usersArr);
                 // $customsData = new CustomUser();                         //seconde way but need to some work to make
                 // $customizeUsers = $customsData->toArray($usersCollect);
-
-                return $this->successWithData(new UserCollection($usersCollect), "successful", 200);
+                return $this->successWithData($usersArr, "successful", 200);
             } else {
                 return $this->error("please try again later", 400);
             }
@@ -100,38 +103,23 @@ class AdminController extends Controller
     {
         try {
 
+            
+            
             if ($request->request_type == 1) {
 
                 $userData = Http::post("http://127.0.0.1:3000/draftDB/unapproved-users/approved/{$request->user_id}");
 
-
+               
                 if ($userData->successful()) {
 
-                    $employeePassword = Str::random(10);
-                    $employeeDataArr = json_decode($userData->body(), true);
-                    $requestInfo = UnapprovedUserModel::where('user_id', $request->user_id)->get();
 
+                    $created = AdminService::createEmployee($request,$userData); 
 
-                    if ($requestInfo) {
+                    if ($created['status'] == true) {
 
-                        $newEmployee = new User();
-                        $newEmployee->name = $employeeDataArr['name'];
-                        $newEmployee->email = $employeeDataArr['email'];
-                        $newEmployee->password = Hash::make($employeePassword);
-                        $newEmployee->phoneNumber = $employeeDataArr["phone_number"];
-                        $newEmployee->department_id = $employeeDataArr["department_id"];
-                        $newEmployee->is_validate = false;
-
-                        $newEmployee->save();
-
-
-                        UnapprovedUser::destroy($requestInfo[0]["id"]);
-                        //  Mail::to($employee-> email)->queue(new welcomeMail($employee-> email,$employee-> name,$employeePassword,$employee-> type));
-                        //  Mail::to($employee-> email)->queue(new notifyMail($department -> name." Department"," ","Welcome! We’re thrilled to have you with us. We had a lot of applicants, and we chose you because we believe that your skills, experience and creativity will have a real impact on our team. We're so excited to have you be part of our team, and we can’t wait to see what you do!"))
-
-                        return $this->successWithData([$newEmployee], "successful", 200);
+                        return $this->successWithData($created["data"], "success", 200);
                     } else {
-                        return $this->error("user not found", 404);
+                        return $this->error($created["data"], 404);
                     }
                 } else {
                     switch ($userData->status()) {
@@ -167,28 +155,58 @@ class AdminController extends Controller
     {
         try {
 
-            $department = Department::findOrFail($request->department_id);
+            
+            // return response()->json(['created' => $request]);
+            $adminService = new AdminService();
+            $created = $adminService->createManager($request); 
+          
 
-            $newManager = new User();
-            $newManager->name = $request->name;
-            $newManager->email = $request->email;
-            $managerPassword = Str::random(10);
-            $newManager->password = Hash::make($managerPassword);
-            $newManager->phoneNumber = $request->phoneNumber;
-            $newManager->department_id = $department->id;
-            $newManager->is_validate = false;
-            $newManager->save();
-            $managerRole = Role::find(2);
-            $newManager->role()->attach($managerRole);
-            // Mail::to($newManager-> email)->queue(new welcomeMail($newManager-> email,$newManager-> name,$managerPassword,$newManager-> type));
-
-            return $this->success("the manager created successfully", 200);
+            if ($created["status"] == true) {
+                return $this->successWithData(new UserResource($created["data"]), "success", 200);
+            } else {
+                return $this->error($created["data"], 404);
+            }
         } catch (Extension $err) {
             return response()->json(["message" => $err], 400);
-        } catch (ModelNotFoundException $e) {
-            return $this->error($e->getMessage(), 404);
         }
     }
 
 
+    public function getManagers(){
+         
+        $manager = Role::find(2)->users;
+
+        return response()-> json(["managers" => UserResource::collection($manager),200]);
+    }
+
+    public function getManagerRequests(){
+
+        $request = UserRequest::where([["type","=",2],["status","=",1]])->with("owner")->get();
+
+        return response()->json(["request" => RequestsResource::collection($request), 200]);
+
+    }
+
+    public function denyAddEmployeeRequest($id){
+        try{
+
+            $deniedUser = Http::delete("http://127.0.0.1:3000/draftDB/unapproved-users/deny/{$id}");
+
+            if($deniedUser->successful()){
+                return $this->success("user denied successfully",200);
+            } else {
+                switch ($deniedUser->status()) {
+                    case 404:
+                        return $this->error("user not found", 404);
+                    default:
+                        return $this->error("please try again later", 400);
+                }
+            }
+            
+        }catch(Exception $e){
+            return $this->error($e->getMessage(),400);
+        }
+       
+
+    }
 }

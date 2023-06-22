@@ -21,7 +21,7 @@ class RequestsSeeder extends Seeder
         $newRequest->department_id = 1;
         $newRequest->type  = 2;
         $newRequest->status  = 2;
-        $newRequest->request_number  = 0;
+        $newRequest->request_number  = "jU-101273";
         $newRequest->description  = "description";
         $newRequest->save();
         $newRequest->file()->create([
@@ -35,9 +35,9 @@ class RequestsSeeder extends Seeder
         
         $newRequest->owner_id  = 2;
         $newRequest->department_id = 2;
-        $newRequest->type  = 1;
+        $newRequest->type  = 2;
         $newRequest->status  = 1;
-        $newRequest->request_number  = 0;
+        $newRequest->request_number  = "r4-2143617";
         $newRequest->description  = "description";
         $newRequest->save();
         $newFile = new File();

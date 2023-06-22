@@ -15,10 +15,14 @@ class RequestsResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+            
+            'id' => $this->id, 
             'request_number'=> $this->request_number,
             'description'=>$this->description,
             'status'=>$this->status,
+            "created_at"=>$this->created_at,
+            "owner" => ["id"=>$this->owner-> id , "name"=>$this->owner->name],
+            "file" => $this->file
         ];
     }
 }

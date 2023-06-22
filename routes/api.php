@@ -13,18 +13,20 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::post("v1/auth/login",[AuthController::class,"login"]);
-Route::post("v1/auth/reset-password",[AuthController::class,'setPassword']);
+ Route::post("v1/auth/login",[AuthController::class,"login"]);
+Route::post("v1/auth/set-password",[AuthController::class,'setPassword']);
 Route::post("v1/auth/otp",[AuthController::class,"verifyOtp"]); 
-Route::get("v1/getAllUsers",[UserController::class,"getAllUsers"]);
-
-
+Route::get("/v1/getManagers",[AdminController::class,"getManagers"]);
+// Route::get("v1/employees/{id}",[ManagerController::class,"getEmployee"]);
+//  Route::get("v1/manager/employees/{id}",[ManagerController::class,"getEmployee"]);
+//  Route::get("v1/manager/employees/requests/{id}",[ManagerController::class,"getEmployeeRequest"]);
 
 
 Route::prefix('/')->middleware("auth:api")->group(function(){
 
 
     Route::post("v1/auth/logout",[AuthController::class,"logout"]);
+    Route::post("v1/auth/reset-password",[AuthController::class,"reSetPassword"]);
     
 
     //admin 
@@ -33,12 +35,16 @@ Route::prefix('/')->middleware("auth:api")->group(function(){
         Route::post("/requests/approved",[AdminController::class,"approvedManagerRequests"]);
         Route::get("/requests/employees/{user_id}",[AdminController::class,"getAddEmployeeRequest"]);
         Route::get("requests/employees",[AdminController::class,"getAllAddEmployeeRequests"]);
+        Route::delete("requests/employees/deny/{id}",[AdminController::class,"denyAddEmployeeRequest"]);
         Route::get('/requests/managers/{request_id}',[UserRequestsController::class,"getOneRequest"]);
+        Route::get('/requests/managers',[AdminController::class,"getManagerRequests"]);
+
         Route::post("/managers",[AdminController::class,"addNewManager"]);
         Route::post("/departments",[DepartmentController::class,"createNewDepartment"]);
         Route::get("/departments/{id}",[DepartmentController::class,"getOneDepartment"]);
         Route::get("/departments",[DepartmentController::class,"getAllDepartments"]);
         Route::get("/departments/requests/{id}",[DepartmentController::class,"getAllDepartmentRequests"]);
+        Route::get("/all-managers",[AdminController::class,"getManagers"]);
 
     });
 
@@ -48,6 +54,9 @@ Route::prefix('/')->middleware("auth:api")->group(function(){
 
           Route::post("/requests/employees",[ManagerController::class,"requestAddEmployee"]);
           Route::post("/employees/requests/approved/{id}",[ManagerController::class,"approvedEmployeeRequest"]);
+          Route::get("/my-department/{id}",[ManagerController::class,"getMyDepartments"]);
+         Route::get("/employees/{id}",[ManagerController::class,"getEmployee"]);
+         Route::get("/employees/requests/{id}",[ManagerController::class,"getEmployeeRequest"]);
 
     });
 
@@ -61,6 +70,8 @@ Route::prefix('/')->middleware("auth:api")->group(function(){
         Route::post("requests",[UserRequestsController::class,"createRequest"]);
         Route::put("/edit-profile",[UserController::class,"editProfile"]);
         Route::post("/send-message",[UserController::class,"notifyUser"]);
+        Route::get("/",[UserController::class,"getAllUsers"]);
+        Route::post("/file",[UserController::class,"getFile"]);
         
     });
 

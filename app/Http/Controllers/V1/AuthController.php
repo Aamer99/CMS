@@ -4,15 +4,23 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\otpRequest;
+use App\Http\Requests\ReSetPasswordRequest;
+use App\Http\Resources\AdminResource;
 use App\Http\Resources\UserResource;
+use App\Http\Services\AuthServices;
+use App\Mail\otpMail;
 use App\Models\Otp;
+use App\Models\User;
+use App\Models\ValidationToken;
 use App\Traits\OtpOperations;
 use Faker\Extension\Extension;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-
+use Laravel\Passport\Bridge\AccessToken;
+use Laravel\Passport\Passport;
 
 class AuthController extends Controller
 {
@@ -23,24 +31,30 @@ class AuthController extends Controller
     {
         try {
 
+            $this->validate($request, [
+                'email' => 'required|email',
+                'password'=> 'required',
+            ]);
+
+
             $credentials = $request->only('email', 'password');
 
             if (Auth::attempt($credentials)) {
 
+                $currentUser = User::where('email', $request->email)->first();
 
-                if (!auth()->user()->is_validate) {
+                $authService = new AuthServices();
 
-                    return response()->json(['message' => "you need to reset your password",], 201);
+                $check = $authService->check($currentUser);
+
+                if($check["status"] == true){
+                    Mail::to($request->email)-> queue(new otpMail($check["code"]));
+                    
+                    return $this->successWithData($check["data"], $check["message"], $check["code"]);
                 } else {
-
-                    // create otp 
-
-                    $otp = $this->generateOTP();
-
-                    //   Mail::to(auth()->user()-> email)-> queue(new otpMail($otpCode));
-
-                    return $this->successWithData($otp, "successful", 200);
+                    return $this->successWithData($check["data"],$check["message"], $check["code"]);
                 }
+              
             } else {
                 return $this->error("invalid email or password, please try again!", 401);
             }
@@ -54,38 +68,24 @@ class AuthController extends Controller
     public function verifyOtp(otpRequest $request)
     {
         try {
+
             $otp = Otp::where('token', $request->token)->first();
 
-            if (!$otp) {
-
-                return $this->error("Unauthorized!", 401);
-
-            } else if ($otp->otp == $request->otp) {
+            $check = $this->check($request, $otp);
 
 
-                $currentDate = strtotime(now());
-                $expiredDate = strtotime($otp->expired_at);
 
-                if ($currentDate < $expiredDate) {
-
-
-                    //Generate  token 
-                    $token = auth()->user()->createToken('token')->accessToken;
-
-                    return $this->successWithData([
-                        'token' => $token,
-                        'user' => new UserResource($otp->user),
-                    ], "successful login", 200);
-                } else {
-                    return $this->error('the otp code is expired', 400);
-                }
+            if ($check["status"] == true) {
+                return $this->successWithData($check["data"], $check["message"], $check["code"]);
             } else {
-                return $this->error('invalid code', 400);
+                return $this->error($check["message"], $check["code"]);
             }
         } catch (Extension $err) {
             return $this->error($err, 400);
         }
     }
+
+
 
     public function logout()
     {
@@ -94,39 +94,61 @@ class AuthController extends Controller
             auth()->user()->token()->revoke();
 
             return $this->success("logged out successfully", 200);
-
         } catch (Extension $err) {
             return $this->error($err, 400);
         }
     }
 
-    public function setPassword(Request $request)
+    
+
+    public function setPassword(ReSetPasswordRequest $request)
     {
         try {
 
-            $request->validate([
-                'current_password' => ['required'],
-                'password' => ['required', 'min:6', 'confirmed']
-            ]);
+           
 
-            $currentUser = auth()->user();
-            $checkPassword = Hash::check($request->current_password, $currentUser->password);
+            $checkToken = ValidationToken::where('token',$request->token)->first();
 
+            if($checkToken){
 
+                $currentUser = $checkToken->user;
+                $authService = new AuthServices();
+               $resetPassword = $authService->resetPassword($currentUser,$request);
 
-
-            if ($checkPassword) {
-
-                $currentUser->password = Hash::make($request->password);
-                $currentUser->is_validate = true;
-                $currentUser->save();
-                Auth::logout();
-
-                return $this->success(["password reset successfully"], 200);
-
+               if($resetPassword["status"] == true){
+                   return $this->success($resetPassword["message"],$resetPassword["code"]);
+               }else {
+                return $this->error($resetPassword["message"],$resetPassword["code"]);
+               }
+                
             } else {
-                return $this->error("password is wrong", 400);
+
+                return $this->error("unauthorized", 401);
             }
+
+        } catch (Extension $err) {
+
+            return $this->error($err, 400);
+        }
+    }
+
+    public function reSetPassword(ReSetPasswordRequest $request)
+    {
+        try {
+
+                $currentUser = auth()->user();
+                $authService = new AuthServices();
+                $resetPassword = $authService->resetPassword($currentUser,$request);
+
+               if($resetPassword["status"] == true){
+                Auth::user()->token()->revoke();
+                   return $this->success($resetPassword["message"],$resetPassword["code"]);
+               }else {
+                return $this->error($resetPassword["message"],$resetPassword["code"]);
+               }
+                
+            
+
         } catch (Extension $err) {
 
             return $this->error($err, 400);

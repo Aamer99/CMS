@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import store from '../store'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,19 +10,22 @@ const router = createRouter({
   routes: [
   
     {
-      path: '/test',
-      name: 'test',
-      component: ()=> import('../views/testView.vue')
+      path: '/reset-password',
+      name: 'ResetPassword',
+      component: ()=> import('../views/RestPasswordView.vue')
     },
       {
       path: '/login',
-      name: 'login',
+      name: 'Login',
       component: ()=> import('../views/LoginView.vue')
     },
     {
       path: '/admin/',
       name: 'AdminHome',
-      component: ()=> import('../components/Home.vue'),
+      redirect:{path:"/admin/"},
+      props:true,
+      component: ()=> import('../components/SideBar.vue'),
+     
       //props:{ menu:[{"title":"Dashboard","destination":"/admin"},{"title":"Departments","destination":"/admin/department"},{"title":"Managers","destination":"/admin/managers"},{"title":"Requests","destination":"/admin/requests"},{"title":"Send Message","destination":"/admin/send-message"}]},
       children:[
         {
@@ -32,7 +36,8 @@ const router = createRouter({
         {
           path: '/admin/',
           name: 'Dashboard',
-          component: ()=> import('../views/Admin/Dashboard.vue')
+          component: ()=> import('../views/Admin/Dashboard.vue'),
+          props:true,
         },
         {
           path: '/admin/requests',
@@ -46,30 +51,88 @@ const router = createRouter({
         },
         {
           path: '/admin/send-message',
-          name: 'SendMessage',
+          name: 'adminSendMessage',
           component: ()=> import('../components/SendMessage.vue')
         },
         {
-          path: '/admin/profile',
+          path: '/:name/profile',
           name: 'Profile',
           component: ()=> import('../components/Profile.vue'),
-          props: true,
+          props: {type:0},
           meta:{requiresAuth: true,}
-
         }
       ]
     },
-   
- 
+
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
-    }
+      path:"/manager",
+      name:"Manager",
+      redirect:"/manager/",
+      component: ()=> import('../components/SideBar.vue'),
+      children:[
+        {
+          path:"/manager/",
+          name:"ManagerDashboard",
+          component:()=> import("../views/Manager/Dashboard.vue")
+        },
+        {
+          path:"/manager/employee",
+          name:"Employee",
+          component:()=> import("../views/Manager/Employee.vue")
+        },
+        {
+          path:"/manager/employee/requests",
+          name:"EmployeeRequests",
+          component: ()=> import('../views/Admin/ManagerRequests.vue')
+        },
+        {
+          path:"/manager/my-request",
+          name:"MyRequest",
+          component: ()=> import('../views/Manager/MyRequests.vue')
+        },
+        {
+          path: '/manager/send-message',
+          name: 'SendMessage',
+          component: ()=> import('../components/SendMessage.vue')
+        },
+      ]
+    },
+
+    {
+      path:"/employee",
+      name:"EmployeeHome",
+      redirect:"/employee/",
+      component: ()=> import('../components/SideBar.vue'),
+      children:[
+        {
+          path:"/employee/",
+          name:"EmployeeDashboard",
+          component:()=> import("../views/Employee/Dashboard.vue")
+        },
+       
+        {
+          path:"/employee/my-request",
+          name:"MyRequests",
+          component: ()=> import('../views/Manager/MyRequests.vue')
+        },
+      ]
+    },
+
+ 
+  
   ]
 })
+
+// router.beforeEach(async (to, from) => {
+//   if (
+    
+//     !store.state.token &&
+    
+//     to.name !== 'Login'
+//   ) {
+    
+//     return { name: 'Login' }
+//   }
+// })
 
 export default router

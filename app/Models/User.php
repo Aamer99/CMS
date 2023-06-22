@@ -18,7 +18,7 @@ class User extends Authenticatable
 
    
    public function department(){
-        return $this->belongsTo(Department::class,"department_id");
+        return $this->belongsToMany(Department::class);
     }
     public function role(){
         return $this->belongsToMany(Role::class);
@@ -41,4 +41,12 @@ class User extends Authenticatable
      public function requests(){
         return $this->hasMany(Request::class,"owner_id");
     }
+    public function validationToken(){
+        return $this->hasOne(ValidationToken::class,"id");
+    }
+    
+    public function products()
+{
+    return $this->hasManyThrough(Department::class, User::class);
+}
 }

@@ -24,14 +24,14 @@ class UserSeeder extends Seeder
       
         
         
-        
+        // admin 
         
         $newAdmin = new User();
         $newAdmin-> name = "admin";
         $newAdmin-> email = "admin@admin.com";
         $newAdmin-> password = Hash::make("admin");
         $newAdmin-> phoneNumber = "055555555";
-        $newAdmin-> department_id = 0;
+        
         $newAdmin-> is_validate = 0;
          $newAdmin-> save(); 
           $file = new File();
@@ -40,18 +40,17 @@ class UserSeeder extends Seeder
         $newAdmin->file()->save($file);
        
         $adminRole= Role::find(1);
-        
+
         $newAdmin->role()->attach($adminRole);
 
     
-      
+      // manager 
 
         $newUser = new User();
         $newUser-> name = "manager";
         $newUser-> email = "manager@manager.com";
         $newUser-> password = Hash::make("manager");
         $newUser-> phoneNumber = "055555555";
-        $newUser-> department_id = 1;
         $newUser-> is_validate = 0;
          $newUser-> save();
         $newUser-> file()->create([
@@ -60,7 +59,10 @@ class UserSeeder extends Seeder
         ]);
        
         $managerRole= Role::find(2);
+        $managerDepartment = Department::find(2);
         $newUser->role()->attach($managerRole);
+        $newUser-> department()-> attach($managerDepartment);
+
 
 
         $newUser = new User();
@@ -68,7 +70,6 @@ class UserSeeder extends Seeder
         $newUser-> email = "manager2@manager.com";
         $newUser-> password = Hash::make("manager");
         $newUser-> phoneNumber = "055555555";
-        $newUser-> department_id = 2;
         $newUser-> is_validate = 0;
          $newUser-> save();
         $newUser-> file()->create([
@@ -76,25 +77,29 @@ class UserSeeder extends Seeder
         ]);
         
         $managerRole= Role::find(2);
-        $newUser-> role()->attach($managerRole);
+        $managerDepartment = Department::find(2);
+        $newUser->role()->attach($managerRole);
+        $newUser-> department()-> attach($managerDepartment);
        
 
-      
+      // employee  
 
         $newEmployee = new User();
         $newEmployee-> name = "employee 1";
         $newEmployee-> email = "employee@employee.com";
         $newEmployee-> password = Hash::make("employee");
         $newEmployee-> phoneNumber = "055555555";
-        $newEmployee-> department_id = 1;
         $newEmployee-> is_validate = 0;
         $newEmployee-> save(); 
          $file = new File();
         $file->file_path = '/storage/app/file/admin';
 
        $newEmployee->file()->save($file);
-        $employeeRole= Role::find(3);
-        $newEmployee->role()->sync($employeeRole); 
+
+       $managerRole= Role::find(3);
+       $managerDepartment = Department::find(1);
+       $newEmployee->role()->attach($managerRole);
+       $newEmployee-> department()-> attach($managerDepartment);
          
 
        
@@ -104,15 +109,16 @@ class UserSeeder extends Seeder
         $newEmployee-> email = "employee2@employee.com";
         $newEmployee-> password = Hash::make("employee");
         $newEmployee-> phoneNumber = "055555555";
-        $newEmployee-> department_id = 2;
         $newEmployee-> is_validate = 0;
         $newEmployee->save();
         $file = new File();
         $file->file_path = '/storage/app/file/employee2';
        $newEmployee->file()->save($file);
        
-        $employeeRole= Role::find(3);
-        $newEmployee->role()->attach($employeeRole); 
+       $managerRole= Role::find(3);
+       $managerDepartment = Department::find(2);
+       $newEmployee->role()->attach($managerRole);
+       $newEmployee-> department()-> attach($managerDepartment);
        
     }
 }

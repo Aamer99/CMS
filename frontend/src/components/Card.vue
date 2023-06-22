@@ -1,7 +1,7 @@
 
 <template>
   <v-card class="mx-auto" width="370" style="padding: 10px;">
-    <template v-slot:title> This is a title </template>
+    <template v-slot:title> {{ type == "Departments" ? data.department.name : type == "Managers" ? data.name : data.user.name }}</template>
 
     <v-container>
       <v-row no-gutters>
@@ -81,7 +81,7 @@ ChartJS.register(
 export default {
   name: "BarChart",
   components: { Bar },
-  props:["type"],
+  props:["type","data"],
   data() {
     return {
       chartData: {
@@ -94,5 +94,6 @@ export default {
       },
     };
   },
+ 
 };
 </script>

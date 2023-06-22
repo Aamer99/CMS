@@ -22,8 +22,10 @@ class StoreRequests extends FormRequest
     public function rules(): array
     {
         return [
-            "description"=> ["required"],
-            "requestFile"=> ['mimes:png,jpeg,pdf','required','max:1000']
+            "title" => ["required","min:3"],
+            "description"=> ["required","min:3"],
+            "requestFile"=> ['mimes:png,jpeg,pdf','required','max:1000'],
+            "department_id"=> ["required"],
         ];
     }
 
@@ -34,6 +36,10 @@ class StoreRequests extends FormRequest
             'requestFile.required' => 'sorry, the file is required.',
             'requestFile.mimes'=> "sorry, the file must be png, jpeg, pdf.",
             'requestFile.max'=> 'sorry, the file size must be less than 10000.',
+            'department_id.required' => 'sorry, the department is required.',
+            'title.required' => ' sorry, the title is required.',
+            'title.min' => 'Sorry, the title should be at least 3 characters',
+            'description.min' => 'Sorry, the description should be at least 3 characters'
             
         ];
     }

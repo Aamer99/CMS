@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\DepartmentResource;
 use App\Http\Resources\RequestsResource;
 use App\Models\Department;
+use App\Models\User;
 use Faker\Extension\Extension;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -18,12 +19,16 @@ class DepartmentController extends Controller
         try {
 
             $request->validate([
-                "name" => ["required", "unique:departments"]
+                "name" => ["required", "unique:departments"],
+                "manager_id" => ["required"]
             ]);
 
+            $manager = User::find($request->manager_id);
             $newDepartment = new Department();
             $newDepartment->name = $request->name;
             $newDepartment->save();
+
+            $newDepartment->users()->attach($manager);
 
             return $this->successWithData(new DepartmentResource($newDepartment), "Department created successfully", 200);
         } catch (Extension $err) {

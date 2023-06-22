@@ -22,11 +22,11 @@ class EditProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'=> ["required_if:name,==,null",'min:3'],
-            'email'=> ['required_if:email,==,null','email','lowercase','unique:users'],
-            'password' => ['required_if:password,==,null','min:6','confirmed'],
-            'phoneNumber' => ['required_if:phoneNumber,==,null'],
-            'current_password'=>['required_if:password,==,null','min:6'],
+            'name'=> ["required_if:name, ''",'nullable','min:3'],
+            'email'=> ['required_if:email,""','email','lowercase','unique:users',"nullable"],
+            // 'password' => ['required_if:password,==,null','min:6','confirmed'],
+            'phoneNumber' => ['required_if:phoneNumber,""',"nullable","numeric","digits:10"],
+            // 'current_password'=>['required_if:password,==,null','min:6'],
         ];
     }
 
@@ -35,11 +35,14 @@ class EditProfileRequest extends FormRequest
         return [
             'name.required' => 'sorry, the name is required.',
             'email.required' => 'sorry,the email is required.',
-            'password.required' => 'sorry,the password is required',
+            // 'password.required' => 'sorry,the password is required',
             'phoneNumber.required'=> "sorry, the phone number is required",
+            // 'phoneNumber.min' => 'sorry, the phone number should be at least 10 numbers',
+            'phoneNumber.numeric' => 'sorry, please enter a valid phone number',
+            'phoneNumber.digits' => 'sorry, please enter a valid phone number',
             'email.email'=> 'sorry, you need to enter valid email address.',
             'email.unique' => "sorry, the email exists, try something else.",
-            'password.min'=> 'sorry, the password should be at least 6 characters'
+            // 'password.min'=> 'sorry, the password should be at least 6 characters'
         ];
     }
 

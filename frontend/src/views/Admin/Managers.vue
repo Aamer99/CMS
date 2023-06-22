@@ -1,6 +1,8 @@
 <template>
     <SearchBar type="Managers" @open-dialog="showDialog" />
-    <v-container>
+    <p class="text-4xl text-gray-900 font-extralight m-3">Managers:</p>
+
+    <!-- <v-container>
         <v-row>
             <v-col md="auto" sm="12">
                 <Card type="Departments" />
@@ -12,14 +14,27 @@
                 <Card type="Departments" />
             </v-col>
         </v-row>
-    </v-container>
+    </v-container> -->
     <!-- Add New Manager  -->
-    <v-dialog v-model="dialog" width="500">
+    <!-- <v-dialog v-model="dialog" width="500">
         <v-card style="padding: 5px">
             <v-card-title class="headline">Add New Manager</v-card-title>
             <v-card-text>
-                <v-text-field label="Name" v-model="managerName" required />
-                <v-text-field label="Email" v-model="managerEmail" required />
+                <v-text-field
+                            label="Name"
+                            v-model="managerName"
+                            :error="this.error.name" 
+                            :error-messages="this.error.name&& this.error.name[0]"
+
+                        ></v-text-field>
+                <v-text-field
+                            label="Email"
+                            v-model="managerEmail"
+                            :error="this.error.email" 
+                            :error-messages="this.error.email  && this.error.email[0]"
+                         
+
+                        ></v-text-field>
                 <v-text-field
                     label="Phone Number"
                     v-model="managerPhoneNumber"
@@ -29,32 +44,89 @@
                     v-model="select"
                     :items="departments"
                     label="Department"
+                    item-title="name"
+                    item-value="id"
                     required
                 ></v-select>
+   
             </v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn
                     color="red-darken-1"
                     variant="text"
-                    @click="dialog = false"
+                    @click="handelCancel"
                 >
                     Cancel
                 </v-btn>
                 <v-btn
                     color="green-darken-1"
                     variant="text"
-                    @click="dialog = false"
+                    @click="addManager"
+                    :disabled = "select  == null || managerName == ''|| managerPhoneNumber == '' || managerEmail ==''"
                 >
                     Add
                 </v-btn>
             </v-card-actions>
         </v-card>
-    </v-dialog>
+    </v-dialog> -->
+
+    <createUser :openDialog="dialog" @open-dialog="showDialog" />
+
+    <!-- <v-dialog v-model="showAlert" width="500">
+                <v-card style="padding: 5px">
+  
+     
+
+          <v-divider></v-divider>
+  
+          <div class="py-12 text-center">
+            <v-icon
+              class="mb-6"
+              color="success"
+              icon="mdi-check-circle-outline"
+              size="128"
+            ></v-icon>
+  
+            <div class="text-h5 font-weight-bold">The Manager added Successfully</div>
+          </div>
+  
+          <v-divider></v-divider>
+  
+          <div class="pa-4 text-end">
+            <v-btn
+              class="text-none"
+              color="medium-emphasis"
+              min-width="92"
+              rounded
+              variant="outlined"
+              @click="dialog = false"
+            >
+              Close
+            </v-btn>
+          </div>
+        </v-card>
+    
+</v-dialog> -->
+
+<v-container>
+        <v-row align="center">
+
+            <v-col v-for="manager in managers" :key="manager.id" cols="12" sm="3">
+                <!-- <button @click="openDialog = true ">  -->
+                  
+                    <Card :data="manager" type="Managers"/>
+                   
+                <!-- </button> -->
+               
+            </v-col>
+
+        </v-row>
+    </v-container>
 
     <!-- if there no managers -->
-    <!-- <main
-        class="grid min-h-full place-items-center px-6 py-24 sm:py-32 lg:px-8"
+     <main
+        class="grid min-h-full place-items-center px-6 py-24 sm:py-32 lg:px-8" v-show="managers.length == 0"
     >
         <div class="text-center">
             <img
@@ -76,35 +148,85 @@
                 </button>
             </div>
         </div>
-    </main> -->
+    </main> 
 </template>
 
 <script>
 import Card from "../../components/Card.vue";
 import SearchBar from "../../components/SearchBar.vue";
-
+import admin from "../../api/admin";
+import createUser from "../../components/createUser.vue";
+import store from "../../store";
 export default {
     components: {
         Card,
         SearchBar,
+        createUser,
     },
     data() {
         return {
             dialog: false,
-            departments: [
-                "Department 1",
-                "Department 2",
-                "Department 3",
-                "Department 4",
-                "Department 5",
-            ],
+            departments: [],
+            managers: [],
             select: null,
+            managerName: "",
+            managerEmail: "",
+            managerPhoneNumber: "",
+            showAlert: false,
+            error: [],
         };
     },
-    methods:{
-        showDialog(){
+    methods: {
+        handelCancel() {
+            this.dialog = false;
+            this.managerEmail = "";
+            this.managerName = "";
+            this.managerPhoneNumber = "";
+            this.error = [];
+            this.select = null;
+        },
+        showDialog() {
             this.dialog = !this.dialog;
+        },
+        addManager(){
+            const managerData= {
+                name:this.managerName,
+                email:this.managerEmail,
+                phoneNumber:this.managerPhoneNumber,
+                department_id:this.select
+            }
+               console.log(managerData)
+               console.log("hh")
+            admin.createManager(managerData)
+            .then((response)=>{
+                this.dialog = false;
+                this.showAlert = true
+                
+            })
+            .catch((error)=>{
+
+                this.error =error.response.data.errors;
+                console.log(JSON.stringify(this.error.name.toString()));
+            })
+
         }
-    }
+    },
+    created() {
+
+        if(store.state.managers.length >0 ){
+
+             this.managers = store.state.managers;
+        }else {
+        admin.getAllManager()
+            .then((response) => {
+                this.managers = response.data.managers;
+                store.commit("setManagers",response.data.managers);
+                
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+        }
+    },
 };
 </script>

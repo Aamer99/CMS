@@ -1,15 +1,27 @@
-import axios from "axios"; 
+
+import { HTTP } from "./axios";
 export default {
-    getOne(id){
-        return axios.get("http://127.0.0.1:8000/api/v1/users/requests/"+id);
+    getRequest(id){
+
+        return HTTP.get("users/requests/"+id);
     },
-    create(data){
-        return axios.post("http://127.0.0.1:8000/api/v1/users/requests");
+    createRequest(data){
+        const config = {
+            headers: { 'content-type': 'multipart/form-data' }
+        }
+        return HTTP.post("users/requests",data,config);
     },
     myRequests(id){
-        return axios.get("http://127.0.0.1:8000/api/v1/users/my-requests/"+id);
+        return HTTP.get("users/my-requests/"+id);
     },
-    deny(id){
-     return axios.get("http://127.0.0.1:8000/api/v1/users/requests/deny/"+id)
-    }
+    denyRequest(id){
+     return HTTP.delete("users/requests/deny/"+id)
+    },
+
+    getManagerRequests(){
+        return HTTP.get("admin/requests/managers");
+    },
+    getEmployeeRequests(id){
+        return HTTP.get(`manager/employees/requests/${id}`);
+      }
 }
