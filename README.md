@@ -13,8 +13,7 @@ CMS is a Management platform to help the organization manage employee requests b
 * Express ^4.18.2 
 * Node ^12.22 
 * MySQL 
-* MongoDB 
-* mongoose ^7.1.1
+* Axios.js 
 
 
 ## Installation 
