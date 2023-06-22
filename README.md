@@ -1,68 +1,133 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<h1>CMS</h1>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
 
-## About Laravel
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## About 
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+CMS is a Management platform to help the organization manage employee requests by sending the requests to the manager for approval or denial.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Technologies
 
-## Learning Laravel
+* PHP ^8.1
+* Laravel ^10 
+* Express ^4.18.2 
+* Node ^12.22 
+* MySQL 
+* MongoDB 
+* mongoose ^7.1.1
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Installation 
+To install first you need to clone the project 
+  
+```bash
+git clone https://github.com/Aamer99/laravel-api.git 
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Go to the project directory
 
-## Laravel Sponsors
+```bash
+  cd my-project
+```
+Go to the frontend folder 
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+```bash
+  cd frontend 
+```
 
-### Premium Partners
+Install dependencies
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+```bash
+  npm install
+```
 
-## Contributing
+Start the server
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+  npm run dev
+```
 
-## Code of Conduct
+know we need to run the backend but first, we need to do: 
+1. install Redis 
+2. install Horizon.
+3. set up the email configuration. 
+4. create a database.
+5. migrate to create the tables in the database.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-## Security Vulnerabilities
+ 
+after that, we need to install the Redis and setup in the env file
+## Install Redis 
+Go to the project directory
+```bash
+  cd my-project
+```
+Install Redis
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash 
+composer require predis/predis
+```
+Setup Redis on the env 
 
-## License
+```bash 
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=redis
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+```
+for more information about how to install Redis on docker [Link](https://hub.docker.com/_/redis) 
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# laravel-api
-# CMS-App
+##  Install Horizon
+To install, run the following command
+
+```bash
+composer require laravel/horizon
+```
+ Publish its assets using the horizon:install Artisan command: 
+```bash 
+php artisan horizon:install 
+```
+## Setub the email configuration
+for the email go to the [mailtrap](https://mailtrap.io/) and create an account after that take the configuration values and put it on the env file 
+
+```bash 
+MAIL_MAILER=smtp
+MAIL_HOST=sandbox.smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=*******
+MAIL_PASSWORD=********
+MAIL_ENCRYPTION=tls
+```
+
+## Create Database 
+
+after we install what we won't know you need to create the database and set it to the env 
+
+```bash 
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=root
+DB_PASSWORD=
+```  
+after that, we need to migrate all the tables by writing this command.
+ 
+```bash
+php artisan migrate
+```
+
+know you can run the server by writing this command. 
+
+```bash
+php artisan serve
+```
+final step run the queue bt writing this command 
+``` bash 
+php artisan queue:work 
+```
+
+know we need to install the draft server [Follow this link](https://github.com/Aamer99/Draft-Server)
+
