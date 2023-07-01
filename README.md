@@ -128,5 +128,5 @@ final step run the queue bt writing this command
 php artisan queue:work 
 ```
 
-know we need to install the draft server [Follow this link](https://github.com/Aamer99/Draft-Server)
+know we need to install the draft server [Follow this link](https://github.com/Aamer99/AM/tree/main/DraftServer)
 
